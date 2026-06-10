@@ -13,8 +13,8 @@ Los pasos para "encender" el proyecto en la máquina del desarrollador antes de 
 
 > [!success] Estado: implementado en [[E00 - Setup y Fundaciones]] (2026-06-10)
 > El monorepo vive en `Aquamarine Project/`. El backend y el frontend corren **nativos**;
-> Docker se usa **solo para Postgres** (`docker compose up -d`). Chroma es **embebido**
-> (sin contenedor). En VS Code, **`Ctrl+Shift+B`** levanta back + front en paralelo.
+> Docker se usa para las **dos BDs** (Postgres + Chroma servidor) con `docker compose up -d`. En VS Code,
+> **`Ctrl+Shift+B`** levanta back + front en paralelo (nativos).
 
 ## Requisitos
 - Python 3.11+ (implementado y verificado en 3.12)
@@ -39,19 +39,20 @@ Los pasos para "encender" el proyecto en la máquina del desarrollador antes de 
    npm install
    npm run dev
    ```
-4. **Postgres (Docker, solo la BD):** desde la raíz del repo `Aquamarine Project/`:
+4. **Bases de datos (Docker):** desde la raíz del repo `Aquamarine Project/`:
    ```bash
-   docker compose up -d    # Postgres 16 en localhost:5432 (volumen persistente)
+   docker compose up -d    # Postgres (localhost:5432) + Chroma servidor (localhost:8002)
    docker compose down     # detener (agrega -v para borrar también los datos)
    ```
-5. **Chroma (embebido, sin contenedor):** se instala con el backend (`pip install chromadb`); persiste en disco en `CHROMA_PERSIST_DIR` (`./chroma_store`).
+5. **Chroma (servidor en Docker):** ya queda arriba con `docker compose up -d` (`localhost:8002`); el backend conecta por `HttpClient` usando `CHROMA_HOST`/`CHROMA_PORT`. El paquete cliente `chromadb` viene con el backend.
 
 ## Variables de entorno (`.env`)
 ```
 ANTHROPIC_API_KEY=
 FIRECRAWL_API_KEY=
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/aquamarine
-CHROMA_PERSIST_DIR=./chroma_store
+CHROMA_HOST=localhost
+CHROMA_PORT=8002
 ```
 
 ## Atajo en VS Code

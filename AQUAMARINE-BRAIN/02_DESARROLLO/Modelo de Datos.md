@@ -2,7 +2,7 @@
 tipo: nota-tecnica
 audiencia: dev
 estado: completado
-actualizado: 2026-06-09
+actualizado: 2026-06-10
 tags: [area/desarrollo, datos, stack/postgres, stack/chroma]
 ---
 
@@ -70,28 +70,50 @@ Valores de `leads.estado`:
 | creado_en | timestamptz | base para tiempos y conversión |
 
 ## Chroma — esquema del inventario (inmuebles)
-Cada inmueble = 1 documento con su texto + metadata filtrable.
+Cada inmueble = 1 documento con su texto + metadata filtrable. Chroma corre como **servidor en Docker**
+(`chromadb/chroma`, `localhost:8002`, `HttpClient`); colección `inmuebles`; embeddings con la **función por
+defecto** de Chroma (all-MiniLM). El esquema lo define `InmuebleIn` (Pydantic) en `backend/app/schemas/inmueble.py`
+y se llena por **extracción estructurada de Firecrawl** (no Claude, ver [[Decisiones (Decision Log)]] D12).
+Implementado y verificado en E01 — detalle del feature en `Aquamarine Project/scraper.md`.
 
-**Documento (texto a embedear):** descripción rica del inmueble (zona, características, entorno).
+**Documento (texto a embedear):** título + tipo + zona/ciudad + descripción + características (texto rico para la búsqueda semántica).
 
-**Metadata:**
-```json
-{
-  "inmueble_id": "string",
-  "tenant_id": "string",
-  "tipo": "apartamento | casa | lote | ...",
-  "zona": "El Poblado | Laureles | ...",
-  "ciudad": "Medellín | Cartagena | ...",
-  "precio": 1500000000,
-  "moneda": "COP",
-  "habitaciones": 3,
-  "banos": 2,
-  "area_m2": 180,
-  "estado": "disponible | reservado | vendido",
-  "url_fuente": "https://...",
-  "fuente": "web | metrocuadrado | fincaraiz"
-}
-```
+**Metadata (plana — Chroma solo admite `str | int | float | bool`; los `None` se omiten; las listas se serializan):**
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| `inmueble_id` | str | "Código" = id final de la URL; **id en Chroma** (idempotencia) |
+| `tenant_id` | str | siempre presente (multitenant); default `"aquamarine"` |
+| `titulo` | str | del `<h1>` / `og:title` |
+| `tipo` | str? | `apartamento \| casa \| lote \| ...` (minúsculas) |
+| `tipo_negocio` | str? | `venta \| arriendo` |
+| `precio` | int? | sin puntos (`$4.500.000.000` → `4500000000`); puede faltar ("Precio a consultar") |
+| `moneda` | str | `COP` |
+| `pais` / `departamento` / `ciudad` | str | `ciudad` es obligatoria |
+| `zona` | str? | barrio/sector |
+| `direccion` | str? | |
+| `habitaciones` / `banos` / `parqueaderos` | int? | |
+| `area_m2` | int? | redondeo de `area_construida` |
+| `area_construida` / `area_privada` | float? | m² |
+| `estrato` / `pisos` / `anio_construccion` | int? | |
+| `administracion` | int? | valor de administración, sin puntos |
+| `condicion` | str? | `usado \| nuevo` (del HTML; **NO es la disponibilidad**) |
+| `estado` | str | disponibilidad del listado → `disponible` (ficha activa) |
+| `es_lujo` | bool | `True` si "Inmueble de Lujo" aparece en las características |
+| `caracteristicas` | str | lista unida por `, ` (Chroma no admite listas) |
+| `imagen_principal` | str? | `og:image` |
+| `imagenes` | str? | lista de URLs serializada como **JSON string** |
+| `latitud` / `longitud` | float? | geo (`0,0` se descarta como ausente) |
+| `url_fuente` | str | URL de la ficha (obligatoria) |
+| `fuente` | str | `web` (web de Claudia) — extensible a portales |
+
+> **Obligatorios mínimos:** `inmueble_id`, `titulo`, `ciudad`, `url_fuente`. El resto es opcional para no
+> descartar fichas reales cuando la extracción omite un campo. `descripcion` va en el **document**, no en la metadata.
+>
+> **Búsqueda:** `buscar_inmuebles(query, filtros, k)` combina similitud semántica con filtros `where`
+> (`ciudad`, `zona`, `tipo`, `precio_max`/`min`, `habitaciones`, `banos`, `es_lujo`), siempre acotada por `tenant_id`.
+> Este es el esquema **extendido** que implementa E01; supera el mínimo original (tipo/zona/precio/área/…) con todos los
+> campos relevantes de la ficha (estrato, año, administración, parqueaderos, características, geo, imágenes, lujo).
 
 ## Métricas derivadas (para el dashboard)
 - Volumen de leads por **origen** y por **temperatura**.
