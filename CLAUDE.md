@@ -10,6 +10,17 @@ para Aquamarine Group SAS (finca raíz de lujo). Repo git independiente del de d
 > consulta `/health` del backend. La lógica de negocio (RAG, agente, CRM) se construye en
 > E01→E07. Este documento se irá actualizando conforme avance el proyecto.
 
+## Documentación por feature (convención)
+
+El contexto detallado de cada feature vive en su propio `<feature>.md` en la raíz de este repo,
+referenciado desde aquí. Este CLAUDE.md es el índice; los `.md` de feature tienen el detalle (cómo
+funciona, integraciones, capacidades, cómo correrlo). **Al construir o cambiar un feature, crea o
+actualiza su `<feature>.md` y enlázalo en esta tabla.**
+
+| Feature | Doc | Resumen |
+|---|---|---|
+| Scraping + RAG (ingesta e índice de inmuebles) | [scraper.md](scraper.md) | Firecrawl → `InmuebleIn` → Chroma; búsqueda semántica + filtros; `POST /rag/reindex` |
+
 ## Dónde está el contexto del proyecto
 
 La **fuente de verdad** (negocio, alcance, arquitectura, épicas, modelo de datos) vive en la
@@ -47,11 +58,18 @@ Aquamarine Project/
 │   │   └── core/        # config.py, db.py
 │   ├── scripts/         # ingesta, seed
 │   ├── alembic/         # migraciones (env.py lee DATABASE_URL de settings)
-│   ├── requirements.txt · Dockerfile · .env.example
+│   ├── requirements.txt · .env.example
 ├── frontend/       # React + TS con Vite (chat + dashboard)
 │   └── src/{pages,api}, App.tsx, main.tsx
-└── docs/           # documentación local (la vault Obsidian es la fuente de verdad)
+├── docs/           # documentación local (la vault Obsidian es la fuente de verdad)
+└── docker-compose.yml  # Postgres para desarrollo (las DBs van en Docker; la app no)
 ```
+
+> [!note] App nativa, DBs en Docker
+> El backend (venv + uvicorn) y el frontend (npm) corren **nativos** en la máquina, no en
+> contenedores. Docker se usa **solo para las bases de datos** (`docker compose up -d` levanta
+> Postgres). En VS Code, `Ctrl+Shift+B` arranca back + front directamente; la BD se levanta
+> aparte con `docker compose up -d`.
 
 Arranque y verificación: ver `README.md`. Diseño objetivo: `Arquitectura.md` en la vault.
 
@@ -61,7 +79,8 @@ Arranque y verificación: ver `README.md`. Diseño objetivo: `Arquitectura.md` e
 ANTHROPIC_API_KEY=
 FIRECRAWL_API_KEY=
 DATABASE_URL=postgresql://...
-CHROMA_PERSIST_DIR=./chroma_store
+CHROMA_HOST=localhost
+CHROMA_PORT=8002
 ```
 
 ## Principios a respetar al construir

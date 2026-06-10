@@ -1,0 +1,14 @@
+# Configuración del servidor Chroma (imagen chromadb/chroma 1.x — server en Rust).
+# Se monta en /config.yaml dentro del contenedor; es lo que ejecuta la imagen:
+# `chroma run /config.yaml`. Reemplaza el config por defecto (que solo trae persist_path).
+
+# Dónde persiste los datos (coincide con el volumen aquamarine_chroma_data:/data).
+persist_path: "/data"
+
+# CORS: orígenes permitidos para que una UI en el NAVEGADOR (p.ej. Chroma UI en
+# http://localhost:3000) pueda consultar el servidor. Sin esto el navegador bloquea
+# las peticiones cross-origin y se ve como "connection failure".
+# ["*"] = cualquier origen (cómodo en desarrollo). En producción, restríngelo a los
+# orígenes concretos, p.ej. ["http://localhost:3000"].
+cors_allow_origins:
+  - "*"

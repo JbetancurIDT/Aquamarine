@@ -1,0 +1,37 @@
+{
+  "name": "aquamarine-project",
+  "version": "1.0.0",
+  "description": "Agente de IA + CRM propio para **Aquamarine Group SAS**, inmobiliaria de finca raíz de lujo.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky",
+    "commit": "cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JbetancurIDT/Aquamarine.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JbetancurIDT/Aquamarine/issues"
+  },
+  "homepage": "https://github.com/JbetancurIDT/Aquamarine#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^17.8.1",
+    "@commitlint/config-conventional": "^17.8.1",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.1.7"
+  }
+}

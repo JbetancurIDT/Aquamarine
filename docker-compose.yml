@@ -1,0 +1,47 @@
+# Bases de datos para DESARROLLO — corren en Docker.
+# El backend (FastAPI) y el frontend (React) NO van en Docker: se ejecutan nativos
+# en tu máquina (venv + uvicorn, npm run dev). Esto provee las dos BDs:
+#
+#   - Postgres (relacional): localhost:5432
+#   - Chroma  (vectorial, modo servidor): localhost:8002  -> contenedor :8000
+#     (el puerto host 8000 lo usa el backend, por eso Chroma se expone en 8002)
+#
+#   docker compose up -d      # levanta ambas (datos en volúmenes persistentes)
+#   docker compose down       # las detiene  (agrega -v para borrar también los datos)
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: aquamarine-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: aquamarine
+    ports:
+      - "5432:5432"
+    volumes:
+      - aquamarine_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aquamarine"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  chroma:
+    # Imagen fijada a 1.5.9 para coincidir EXACTO con el cliente `chromadb` del backend.
+    # Es el server en Rust: se configura por archivo YAML (no por env), incluido CORS.
+    image: chromadb/chroma:1.5.9
+    container_name: aquamarine-chroma
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    volumes:
+      - aquamarine_chroma_data:/data
+      # Config del server (persist_path + CORS para la UI en el navegador). Reemplaza
+      # el /config.yaml por defecto de la imagen, que solo trae persist_path.
+      - ./chroma-config.yaml:/config.yaml:ro
+
+volumes:
+  aquamarine_pgdata:
+  aquamarine_chroma_data:

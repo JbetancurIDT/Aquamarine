@@ -7,6 +7,7 @@ que sirve como prueba de conexión end-to-end con el frontend.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.rag import router as rag_router
 from app.core.config import settings
 
 app = FastAPI(title="Aquamarine API")
@@ -26,3 +27,7 @@ app.add_middleware(
 def health() -> dict[str, str]:
     """Healthcheck: el frontend lo consulta al cargar `/chat`."""
     return {"status": "ok", "environment": settings.ENVIRONMENT}
+
+
+# Routers de feature.
+app.include_router(rag_router)
