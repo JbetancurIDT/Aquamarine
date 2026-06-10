@@ -10,3 +10,4 @@ chromadb
 python-dotenv
 anthropic
 httpx
+firecrawl-py
