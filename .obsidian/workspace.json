@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AQUAMARINE-BRAIN/02_DESARROLLO/Stack Tecnológico.md",
+                "file": "AQUAMARINE-BRAIN/04_PROGRESO/Estado del MVP (Checklist global).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Stack Tecnológico"
+              "title": "Estado del MVP (Checklist global)"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "AQUAMARINE-BRAIN/02_DESARROLLO/Stack Tecnológico.md",
+                "file": "AQUAMARINE-BRAIN/04_PROGRESO/Estado del MVP (Checklist global).md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Stack Tecnológico"
+              "title": "Backlinks for Estado del MVP (Checklist global)"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "AQUAMARINE-BRAIN/02_DESARROLLO/Stack Tecnológico.md",
+                "file": "AQUAMARINE-BRAIN/04_PROGRESO/Estado del MVP (Checklist global).md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Stack Tecnológico"
+              "title": "Outgoing links from Estado del MVP (Checklist global)"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "AQUAMARINE-BRAIN/02_DESARROLLO/Stack Tecnológico.md",
+                "file": "AQUAMARINE-BRAIN/04_PROGRESO/Estado del MVP (Checklist global).md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Stack Tecnológico"
+              "title": "Outline of Estado del MVP (Checklist global)"
             }
           }
         ]
@@ -183,19 +183,22 @@
       "bases:Create new base": false
     }
   },
-  "active": "0f20b96bf7ca7e9e",
+  "active": "b5898ae950bb5ddd",
   "lastOpenFiles": [
-    "AQUAMARINE-BRAIN/04_PROGRESO/Daily Log.md.tmp.22100.bc1bf4287940",
-    "AQUAMARINE-BRAIN/04_PROGRESO/Estado del MVP (Checklist global).md.tmp.22100.a9c10d83de06",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md.tmp.22100.a3b74e096cf1",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md.tmp.22100.e13fd740beca",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md.tmp.22100.2c0f72aee628",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md.tmp.22100.c792aabe5960",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md.tmp.22100.0e29d2eeae2a",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md.tmp.22100.77c5b680d6ef",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md.tmp.22100.b2b8463a0c73",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md.tmp.22100.04e04c0bda96",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md.tmp.22100.653622bef341",
+    "AQUAMARINE-BRAIN/04_PROGRESO/Daily Log.md",
+    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md",
+    "AQUAMARINE-BRAIN/02_DESARROLLO/Stack Tecnológico.md",
+    "frontend",
+    "docs",
+    "backend",
+    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/ChatPage.tsx",
+    "frontend/src/api/client.ts",
+    "frontend/src/vite-env.d.ts",
+    "frontend/src/pages",
+    "frontend/src/main.tsx",
+    "frontend/src/index.css",
+    "README.md",
     "CLAUDE.md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Setup del Entorno.md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Modelo de Datos.md",
@@ -214,12 +217,9 @@
     "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E03 - Agente IA (Claude).md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E02 - Backend Core (FastAPI + Postgres).md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E01 - Ingesta RAG (Firecrawl + Chroma).md",
-    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md",
     "AQUAMARINE-BRAIN/99_FUENTES/Transcript - Desayuno cliente.md",
     "AQUAMARINE-BRAIN/99_FUENTES/Reto Aquamarine (original).md",
     "AQUAMARINE-BRAIN/99_FUENTES/Propuesta IDT (original).md",
-    "AQUAMARINE-BRAIN/04_PROGRESO/Riesgos y Bloqueos.md",
-    "AQUAMARINE-BRAIN/04_PROGRESO/Estado del MVP (Checklist global).md",
-    "AQUAMARINE-BRAIN/04_PROGRESO/Daily Log.md"
+    "AQUAMARINE-BRAIN/04_PROGRESO/Riesgos y Bloqueos.md"
   ]
 }

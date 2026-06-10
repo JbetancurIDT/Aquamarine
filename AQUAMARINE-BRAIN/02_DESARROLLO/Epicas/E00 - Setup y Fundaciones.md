@@ -1,10 +1,10 @@
 ---
 tipo: epica
 audiencia: dev
-estado: completado
+estado: pendiente
 epica: E00
 actualizado: 2026-06-09
-tags: [area/desarrollo, comp/backend, comp/frontend, estado/completado]
+tags: [area/desarrollo, comp/backend, comp/frontend, estado/pendiente]
 ---
 
 # E00 — Setup y Fundaciones
@@ -22,43 +22,33 @@ Stack: React+TS (Vite) en `frontend/`, FastAPI en `backend/`. Postgres como BD r
 ## Etapas y tareas
 
 ### Etapa 0.1 — Estructura del repo
-- [x] **T00.1.1** — Crear monorepo con carpetas `backend/`, `frontend/`, `docs/`.
+- [ ] **T00.1.1** — Crear monorepo con carpetas `backend/`, `frontend/`, `docs/`.
   - **Criterio:** estructura coincide con la de [[Arquitectura]]; `README.md` raíz con instrucciones básicas.
   - **Prompt sugerido:** "Crea un monorepo para un MVP con backend FastAPI (Python) y frontend React+TypeScript (Vite). Estructura: backend/app/{api,agent,rag,models,schemas,core}, backend/scripts, frontend/, docs/. Incluye README raíz, .gitignore para Python y Node, y requirements.txt + package.json base."
 
 ### Etapa 0.2 — Backend base
-- [x] **T00.2.1** — Inicializar FastAPI con Uvicorn y endpoint `/health`.
+- [ ] **T00.2.1** — Inicializar FastAPI con Uvicorn y endpoint `/health`.
   - **Criterio:** `GET /health` responde `{"status":"ok"}`.
   - **Prompt sugerido:** "En backend/, crea una app FastAPI mínima (app/main.py) con config por entorno (app/core/config.py usando pydantic-settings) y un endpoint GET /health que devuelva status ok. Agrega CORS abierto para desarrollo."
-- [x] **T00.2.2** — Configurar SQLAlchemy + Alembic apuntando a Postgres.
+- [ ] **T00.2.2** — Configurar SQLAlchemy + Alembic apuntando a Postgres.
   - **Criterio:** `alembic upgrade head` corre sin error contra la `DATABASE_URL`.
   - **Prompt sugerido:** "Configura SQLAlchemy 2.0 (async o sync, elige lo más simple) y Alembic en backend/. Lee DATABASE_URL del entorno. Crea la sesión de BD en app/core/db.py y deja Alembic listo para autogenerar migraciones desde app/models."
 
 ### Etapa 0.3 — Vectorial y entorno
-- [x] **T00.3.1** — Instalar y configurar Chroma persistente.
+- [ ] **T00.3.1** — Instalar y configurar Chroma persistente.
   - **Criterio:** función `get_chroma_client()` devuelve un cliente que persiste en `CHROMA_PERSIST_DIR`.
   - **Prompt sugerido:** "Agrega chromadb al backend. Crea app/rag/chroma_client.py con una función get_chroma_client() que use PersistentClient apuntando a CHROMA_PERSIST_DIR del entorno, y una colección 'inmuebles'."
-- [x] **T00.3.2** — Crear `.env.example` con todas las variables.
+- [ ] **T00.3.2** — Crear `.env.example` con todas las variables.
   - **Criterio:** incluye ANTHROPIC_API_KEY, FIRECRAWL_API_KEY, DATABASE_URL, CHROMA_PERSIST_DIR.
 
 ### Etapa 0.4 — Frontend base
-- [x] **T00.4.1** — Inicializar React+TS con Vite y routing a dos vistas (`/chat`, `/dashboard`).
+- [ ] **T00.4.1** — Inicializar React+TS con Vite y routing a dos vistas (`/chat`, `/dashboard`).
   - **Criterio:** ambas rutas cargan páginas placeholder; cliente HTTP configurado hacia el backend.
   - **Prompt sugerido:** "En frontend/, crea una app React+TypeScript con Vite. Configura react-router con dos rutas: /chat y /dashboard, cada una con un componente placeholder. Crea un cliente API (axios o fetch wrapper) que apunte a la URL del backend vía variable de entorno VITE_API_URL."
 
 ### Etapa 0.5 — Verificación end-to-end
-- [x] **T00.5.1** — Conectar frontend `/health` con backend y mostrar estado.
+- [ ] **T00.5.1** — Conectar frontend `/health` con backend y mostrar estado.
   - **Criterio:** la página `/chat` muestra "backend ok" al cargar (prueba de conexión).
 
 ## Definición de hecho (épica)
 Backend levanta, migraciones corren, Chroma inicializa, frontend carga las dos vistas y se conecta al backend.
-
-## Estado de implementación
-> [!success] Completado — 2026-06-09
-> Monorepo creado en `Aquamarine Project/` (back + front + `docs/`). Verificado en runtime:
-> - **Backend:** importa y `GET /health` → `{"status":"ok","environment":"..."}`; CORS abierto.
-> - **Datos:** `alembic upgrade head` y `alembic revision --autogenerate` corren contra Postgres real (Docker); `env.py` lee `DATABASE_URL` de `settings`.
-> - **Vectorial:** `get_chroma_client()` crea un `PersistentClient` con la colección `inmuebles`.
-> - **Frontend:** `npm install` + `npm run build` (`tsc && vite build`) compilan; `npm run dev` sirve `/chat` y `/dashboard`; `/chat` consulta `/health` y muestra "backend ok".
->
-> Revisado además con una pasada adversarial multi-agente (1 blocker de `tsconfig` corregido y re-verificado). Arranque y verificación: ver `README.md` del repo del producto.

@@ -11,7 +11,7 @@ tags: [area/proyecto, progreso, checklist]
 > Vista rápida del avance. La comercial puede leer esto para saber "qué ya está hecho" sin entrar al detalle técnico.
 
 ## Progreso por épica
-- [x] **E00 — Setup y Fundaciones** → [[E00 - Setup y Fundaciones]]
+- [ ] **E00 — Setup y Fundaciones** → [[E00 - Setup y Fundaciones]]
 - [ ] **E01 — Ingesta RAG** → [[E01 - Ingesta RAG (Firecrawl + Chroma)]]
 - [ ] **E02 — Backend Core** → [[E02 - Backend Core (FastAPI + Postgres)]]
 - [ ] **E03 — Agente IA** → [[E03 - Agente IA (Claude)]]

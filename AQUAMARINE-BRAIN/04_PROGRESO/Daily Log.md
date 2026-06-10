@@ -16,9 +16,7 @@ tags: [area/proyecto, log, progreso]
 - Definidas las épicas E00–E07 con tareas granulares.
 - **Pendiente de definir:** URLs fuente concretas para el scraping (ver [[Riesgos y Bloqueos]]).
 
-## Día 1 (hackathon) — 2026-06-09
-- [E00] **Setup y Fundaciones completado.** Monorepo en `Aquamarine Project/` (backend FastAPI + frontend React+TS con Vite + `docs/`). Backend: `GET /health` → `{"status":"ok"}`, SQLAlchemy + Alembic (`alembic upgrade head` y `--autogenerate` corren contra Postgres), Chroma (`get_chroma_client()` + colección `inmuebles`). Frontend: rutas `/chat` y `/dashboard`; `/chat` consulta `/health` y muestra "backend ok". Verificado en runtime (`npm run build` y servidores levantan). T00.1.1, T00.2.1, T00.2.2, T00.3.1, T00.3.2, T00.4.1, T00.5.1 ✅
-
+## Día 1 (hackathon) — _por registrar_
 <!-- Ejemplo:
 - [E00] Monorepo y backend base listos. T00.1.1, T00.2.1 ✅
 - [E01] Cliente Firecrawl funcionando. T01.1.1 ✅
