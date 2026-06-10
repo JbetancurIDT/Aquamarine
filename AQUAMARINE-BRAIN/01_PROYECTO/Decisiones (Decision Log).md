@@ -2,7 +2,7 @@
 tipo: nota-proyecto
 audiencia: ambos
 estado: en-progreso
-actualizado: 2026-06-09
+actualizado: 2026-06-10
 tags: [area/proyecto, decisiones]
 ---
 
@@ -21,5 +21,6 @@ Registro de decisiones clave. Cada una: contexto, decisión y consecuencia. Para
 | D07 | 2026-06-09 | **RAG** de inmuebles con **Firecrawl → Chroma** | Grounding real + recomendación de similares; capa gratuita | Pipeline de ingesta re-ejecutable |
 | D08 | 2026-06-09 | Handoff a asesor **funcional** (no simulado) | Demuestra el ciclo completo y el rol humano (clave en lujo) | Notificación + cambio de estado real |
 | D09 | 2026-06-09 | Cerebro del proyecto en **Obsidian** | Convergencia dev/comercial + lectura por agentes IA | Este vault |
+| D10 | 2026-06-10 | **App nativa; Docker solo para las BDs** (backend sin `Dockerfile`, Chroma embebido) | Iteración local más simple y rápida: el equipo corre back/front directo y aísla en contenedor solo la persistencia | `docker-compose.yml` levanta Postgres; backend (venv+uvicorn) y frontend (npm) nativos; Chroma `PersistentClient`; `Ctrl+Shift+B` en VS Code arranca back+front |
 
 > Para agregar una decisión nueva: añade fila, sube `actualizado`, y si afecta el build, refleja el cambio en la épica correspondiente.
