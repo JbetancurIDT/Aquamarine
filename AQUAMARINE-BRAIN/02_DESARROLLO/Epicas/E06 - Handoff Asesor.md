@@ -38,5 +38,12 @@ El scoring de E03 marca `caliente`. La asignación de asesor puede ser por dispo
 - [ ] **T06.3.1** — Acción "tomar lead" que pasa el estado a `negociando`.
   - **Criterio:** el asesor toma el lead desde la notificación → estado `negociando` + evento.
 
+### Etapa 6.4 — Impersonación de asesor (demo del handover)
+- [ ] **T06.4.1** — Ruta `/asesor/<nombre>/<id>` que carga el dashboard del asesor SIN auth (mecanismo de DEMO).
+  - **Criterio:** abrir `/asesor/daniela/a1` muestra los leads asignados a ese asesor + las notificaciones de handoff entrantes y permite "tomar" un lead, para **simular el handover** frente al cliente. NO es auth real (ver [[Decisiones (Decision Log)]] D14). Requiere 2–3 asesores sembrados. Diseño: [[Diseño UI (referencia)]] §4.4.
+
 ## Definición de hecho (épica)
 Cuando un lead se vuelve caliente en el chat, el dashboard del asesor muestra la notificación con el perfil completo; el asesor lo toma y el lead avanza en el pipeline. Todo con eventos registrados (base para medir el tiempo de respuesta).
+
+## Diseño (UI) — ver [[Diseño UI (referencia)]] §4.1 y §4.3
+Handoff visible en el **chat del lead** (bloque "Conectando con &lt;asesor&gt;" + CTA verde WhatsApp) y en la consola interna dentro del `LeadDetail` (timeline + "Asignar / reasignar"). La **impersonación de asesor** (T06.4.1) permite ver la vista del asesor que recibe el lead.

@@ -13,7 +13,9 @@ tags: [area/desarrollo, comp/agente, stack/claude, comp/rag, estado/pendiente]
 > **Objetivo técnico:** orquestador sobre Claude API con system prompt de dominio, tool de búsqueda RAG, perfilamiento incremental, scoring caliente/tibio/frío, y persistencia en Postgres.
 
 ## Contexto para el agente
-Es la pieza que une E01 (Chroma) y E02 (Postgres). Reglas de negocio de Claudia (del transcript): tono humano y cálido, NADA de formularios, entender la necesidad real antes de mandar opciones, no abrumar con "todo el mercado", filtrar y ofrecer lo pertinente. El handoff humano es protagonista cuando el lead es caliente (mercado de patrimonio/confianza). Las 4 dimensiones de calificación (de la propuesta): tipo de inmueble, zona, presupuesto, plazo de decisión.
+Es la pieza que une E01 (Chroma) y E02 (Postgres). Reglas de negocio de Claudia (del transcript): tono humano y cálido, NADA de formularios, entender la necesidad real antes de mandar opciones, no abrumar con "todo el mercado", filtrar y ofrecer lo pertinente. El handoff humano es protagonista cuando el lead es caliente (mercado de patrimonio/confianza). Las 4 dimensiones de calificación (de la propuesta): tipo de inmueble, zona, presupuesto, plazo de decisión. **Idiomas objetivo del agente: español e inglés** (el francés queda fuera del target de este MVP).
+
+> El agente se llama **Aqua** — ver [[Aqua — el nombre del agente]] (historia del nombre + tono) y el diseño del chat en [[Diseño UI (referencia)]] §4.1. Vive **dentro del backend** (`app/agent/`). **Modelo:** `claude-sonnet-4-6` (configurable por `ANTHROPIC_MODEL`; subir a `claude-opus-4-8` para la demo). No-streaming en el MVP.
 
 ## Dependencias
 - **Requiere:** E01 (búsqueda), E02 (persistencia).
@@ -25,8 +27,9 @@ Es la pieza que une E01 (Chroma) y E02 (Postgres). Reglas de negocio de Claudia 
 - [ ] **T03.1.1** — Redactar el system prompt del agente inmobiliario de lujo.
   - **Criterio:** define personalidad cálida y humana, reglas (no formularios, no abrumar, entender antes de ofrecer), las 4 dimensiones a perfilar, y cuándo escalar a asesor.
   - **Prompt sugerido:** "Crea backend/app/agent/prompts.py con SYSTEM_PROMPT para un agente inmobiliario de lujo colombiano. Debe: usar tono cálido y humano (nada robótico, sin formularios), perfilar gradualmente tipo de inmueble/zona/presupuesto/plazo a través de conversación natural, ofrecer inmuebles solo cuando entienda la necesidad, recomendar similares si el cliente duda, y nunca abrumar con muchas opciones. Incluye reglas para reconocer cuándo un lead está listo para pasar a un asesor humano."
-- [ ] **T03.1.2** — Detección de idioma (es/en/fr) y respuesta en el idioma del lead.
-  - **Criterio:** si el lead escribe en inglés/francés, el agente responde en ese idioma.
+- [ ] **T03.1.2** — Detección de idioma (**es/en**) y respuesta en el idioma del lead.
+  - **Criterio:** si el lead escribe en inglés, el agente responde en inglés; en cualquier otro caso, en español.
+  - **Alcance (MVP):** los idiomas objetivo del agente son **español e inglés**. El **francés NO está dentro del target de este MVP** — aunque el campo `idioma` del lead pueda registrarlo como dato, el agente no se compromete a conversar en francés. (Ampliar idiomas queda como mejora futura.)
 
 ### Etapa 3.2 — Tool de búsqueda (RAG)
 - [ ] **T03.2.1** — Definir y registrar la tool `buscar_inmuebles` para Claude (tool use).

@@ -49,3 +49,6 @@ Claudia abre el dashboard, escribe "¿cómo van los leads esta semana y cuáles 
 
 ## Documentación del feature
 Al construirlo, crea `Aquamarine Project/insights-agent.md` y enlázalo en `CLAUDE.md` (convención de docs por feature).
+
+## Diseño (UI) — ver [[Diseño UI (referencia)]] §4.5 y §4.4
+El surface es la **burbuja "Asistente Aquamarine"** (FAB + panel flotante) sobre el Dashboard, no una pantalla aparte. Patrón de respuesta: **prosa breve + una tarjeta-stat**, con variante **warn** (roja) cuando el dato es accionable ("2 calientes +4 días sin contacto, ambos de Mateo Ángel — reasignar hoy"). 6 preguntas sugeridas (ventas, mejor asesor, calientes en riesgo, mejor canal, tiempo de respuesta, zona top). Las métricas por asesor (handoff/respuesta/conversión) vienen de la vista Performance (§4.4); cada tasa como `{val, num, den}`.

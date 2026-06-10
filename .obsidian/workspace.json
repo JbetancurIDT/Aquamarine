@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AQUAMARINE-BRAIN/04_PROGRESO/Estado del MVP (Checklist global).md",
+                "file": "CLAUDE.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Estado del MVP (Checklist global)"
+              "title": "CLAUDE"
             }
           }
         ]
@@ -185,6 +185,15 @@
   },
   "active": "b5898ae950bb5ddd",
   "lastOpenFiles": [
+    "AQUAMARINE-BRAIN/02_DESARROLLO/Diseño UI (referencia).md.tmp.54760.f1a39bf3301c",
+    "AQUAMARINE-BRAIN/02_DESARROLLO/Modelo de Datos.md.tmp.54760.5e387e6e0ad3",
+    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E03 - Agente IA (Claude).md.tmp.54760.61e8822de7ab",
+    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E03 - Agente IA (Claude).md.tmp.54760.c175260cea1b",
+    "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E03 - Agente IA (Claude).md.tmp.123216.c3b42c5ec591",
+    "AQUAMARINE-BRAIN/03_COMERCIAL/Aqua — el nombre del agente.md",
+    "AQUAMARINE-BRAIN/03_COMERCIAL/Aqua — el nombre del agente.md.tmp.123216.a3d189d913d6",
+    "README.md",
+    "AQUAMARINE-BRAIN/04_PROGRESO/Estado del MVP (Checklist global).md",
     "AQUAMARINE-BRAIN/04_PROGRESO/Daily Log.md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E00 - Setup y Fundaciones.md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Stack Tecnológico.md",
@@ -193,12 +202,6 @@
     "backend",
     "frontend/src/pages/DashboardPage.tsx",
     "frontend/src/pages/ChatPage.tsx",
-    "frontend/src/api/client.ts",
-    "frontend/src/vite-env.d.ts",
-    "frontend/src/pages",
-    "frontend/src/main.tsx",
-    "frontend/src/index.css",
-    "README.md",
     "CLAUDE.md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Setup del Entorno.md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Modelo de Datos.md",
@@ -217,9 +220,6 @@
     "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E03 - Agente IA (Claude).md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E02 - Backend Core (FastAPI + Postgres).md",
     "AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E01 - Ingesta RAG (Firecrawl + Chroma).md",
-    "AQUAMARINE-BRAIN/99_FUENTES/Transcript - Desayuno cliente.md",
-    "AQUAMARINE-BRAIN/99_FUENTES/Reto Aquamarine (original).md",
-    "AQUAMARINE-BRAIN/99_FUENTES/Propuesta IDT (original).md",
-    "AQUAMARINE-BRAIN/04_PROGRESO/Riesgos y Bloqueos.md"
+    "AQUAMARINE-BRAIN/99_FUENTES/Transcript - Desayuno cliente.md"
   ]
 }

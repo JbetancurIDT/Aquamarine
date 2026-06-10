@@ -15,6 +15,7 @@ tags: [moc, area/desarrollo]
 - [[Stack Tecnológico]] — qué usamos y por qué
 - [[Modelo de Datos]] — tablas de Postgres + esquema de inmuebles
 - [[Setup del Entorno]] — cómo arrancar el proyecto
+- [[Diseño UI (referencia)]] — paleta (obligatoria) + catálogo de pantallas del frontend
 
 ## Épicas (en orden sugerido de ataque)
 

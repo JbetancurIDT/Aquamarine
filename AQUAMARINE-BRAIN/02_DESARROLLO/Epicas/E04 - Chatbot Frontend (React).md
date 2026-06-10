@@ -41,3 +41,6 @@ Estética tipo WhatsApp (burbujas, estados). El chat crea/usa un `lead` y conver
 
 ## Definición de hecho (épica)
 Un usuario abre `/chat?origen=meta`, conversa con el agente, recibe respuestas humanas y ve tarjetas de inmuebles reales sugeridos.
+
+## Diseño (UI) — ver [[Diseño UI (referencia)]] §4.1 y §1
+Pantalla **pública** `/chat`, estética WhatsApp con paleta de lujo. Header con badge de **temperatura en vivo** (Frío→Tibio→Caliente) y chip de canal ("vía Meta"); **PropertyCard** incrustada cuando Aqua recomienda inventario (RAG); bloque de **handoff** con CTA verde WhatsApp ("Continuar por WhatsApp"). El backend debe poder anexar `cards:[propId]` y `handoff:true` a un mensaje. La **paleta es requisito duro**.

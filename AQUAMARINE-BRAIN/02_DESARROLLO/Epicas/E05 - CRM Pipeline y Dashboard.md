@@ -42,5 +42,12 @@ Consume `GET /leads` (filtros), `GET /leads/{id}`, `GET /metrics/overview`, `PAT
 - [ ] **T05.4.1** — Botón de re-indexar inventario (conecta con `POST /rag/reindex` de E01).
   - **Criterio:** desde el dashboard se puede refrescar el inventario y se ve feedback de cuántos inmuebles cargó.
 
+### Etapa 5.5 — Performance de asesores
+- [ ] **T05.5.1** — Vista de desempeño por asesor (comparativa + detalle).
+  - **Criterio:** tabla comparativa ordenable (1ª respuesta, conversión, leads, valor) con semáforo ok/risk/under vs meta y promedio de equipo; detalle por asesor con gauge de score y métricas auditables. Métricas: [[E08 - Agente de Métricas (Gerencia)]]. Diseño: [[Diseño UI (referencia)]] §4.4.
+
 ## Definición de hecho (épica)
 Claudia abre `/dashboard`, ve sus leads en el embudo, entra al detalle de uno, revisa la conversación y el score, y consulta las métricas del negocio en vivo.
+
+## Diseño (UI) — ver [[Diseño UI (referencia)]] §4.2–4.4
+Consola **interna**. Dashboard de gerencia (8 KPIs incl. 1ª respuesta y conversión; funnel; donut por temperatura; por origen; demanda por zona; top inmuebles; seguimiento urgente). Kanban por **estado del embudo** (no por temperatura) + panel lateral `LeadDetail` con timeline. La burbuja **Analyst** (E08) flota sobre esta vista. Nota: el dashboard pide un par de métricas extra a las de E02 (pipeline ponderado, negocios ganados, % calificados) → **ampliar `/metrics/overview`**.

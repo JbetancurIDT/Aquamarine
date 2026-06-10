@@ -13,7 +13,7 @@ tags: [area/proyecto, progreso, checklist]
 ## Progreso por épica
 - [x] **E00 — Setup y Fundaciones** → [[E00 - Setup y Fundaciones]]
 - [x] **E01 — Ingesta RAG** → [[E01 - Ingesta RAG (Firecrawl + Chroma)]]
-- [ ] **E02 — Backend Core** → [[E02 - Backend Core (FastAPI + Postgres)]]
+- [x] **E02 — Backend Core** → [[E02 - Backend Core (FastAPI + Postgres)]]
 - [ ] **E03 — Agente IA** → [[E03 - Agente IA (Claude)]]
 - [ ] **E04 — Chatbot Frontend** → [[E04 - Chatbot Frontend (React)]]
 - [ ] **E05 — CRM Pipeline y Dashboard** → [[E05 - CRM Pipeline y Dashboard]]
