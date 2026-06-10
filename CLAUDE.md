@@ -4,10 +4,11 @@ Este es el repositorio del **producto real** de Aquamarine: el agente de IA + CR
 para Aquamarine Group SAS (finca raíz de lujo). Repo git independiente del de documentación.
 
 > [!note] Estado actual
-> El repo está **vacío a propósito**. Aún no se han creado los ambientes de backend ni
-> frontend. Por ahora solo viven aquí este `CLAUDE.md` y el `README.md` para inicializar git.
-> El back y el front se construirán más adelante. Este documento se irá actualizando conforme
-> avance el proyecto.
+> **Épica E00 (Setup y Fundaciones) completada.** Ya existen los esqueletos de `backend/`
+> (FastAPI + SQLAlchemy/Alembic + Chroma) y `frontend/` (React + TS con Vite), más `docs/`,
+> `.gitignore` y este `CLAUDE.md`/`README.md`. Hay un "hola mundo" end-to-end: `/chat`
+> consulta `/health` del backend. La lógica de negocio (RAG, agente, CRM) se construye en
+> E01→E07. Este documento se irá actualizando conforme avance el proyecto.
 
 ## Dónde está el contexto del proyecto
 
@@ -32,23 +33,27 @@ consulta especialmente:
 | BD vectorial | Chroma (índice semántico de inventario, solo lectura) |
 | Scraping | Firecrawl (ingesta on-demand de inmuebles → Chroma) |
 
-## Estructura prevista (monorepo)
-
-Aún no creada. El diseño objetivo (ver `Arquitectura.md` en la vault):
+## Estructura del monorepo (creada en E00)
 
 ```
 Aquamarine Project/
 ├── backend/        # FastAPI, agente, RAG, modelos
 │   ├── app/
-│   │   ├── api/         # routers REST
-│   │   ├── agent/       # lógica del agente + prompts
-│   │   ├── rag/         # firecrawl + chroma
-│   │   ├── models/      # SQLAlchemy
+│   │   ├── api/         # routers REST (vacío hasta E02)
+│   │   ├── agent/       # lógica del agente + prompts (vacío hasta E03)
+│   │   ├── rag/         # firecrawl + chroma (chroma_client.py)
+│   │   ├── models/      # SQLAlchemy (sin tablas reales hasta E02)
 │   │   ├── schemas/     # Pydantic
-│   │   └── core/        # config, db, seguridad
-│   └── scripts/         # ingesta, seed
-└── frontend/       # React + TS (chat + dashboard)
+│   │   └── core/        # config.py, db.py
+│   ├── scripts/         # ingesta, seed
+│   ├── alembic/         # migraciones (env.py lee DATABASE_URL de settings)
+│   ├── requirements.txt · Dockerfile · .env.example
+├── frontend/       # React + TS con Vite (chat + dashboard)
+│   └── src/{pages,api}, App.tsx, main.tsx
+└── docs/           # documentación local (la vault Obsidian es la fuente de verdad)
 ```
+
+Arranque y verificación: ver `README.md`. Diseño objetivo: `Arquitectura.md` en la vault.
 
 ## Variables de entorno (referencia, cuando exista código)
 

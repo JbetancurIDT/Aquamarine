@@ -1,0 +1,38 @@
+# ─────────────────────────── Python (backend) ───────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# ──────────────────────────── Node (frontend) ───────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ───────────────────────── Secretos y datos locales ─────────────────────
+.env
+.env.*
+!.env.example
+
+# Almacén vectorial persistente de Chroma (se regenera con la ingesta)
+chroma_store/
+
+# ──────────────────────────── OS / editores ─────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
