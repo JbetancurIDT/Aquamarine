@@ -3,7 +3,12 @@
 `buscar_inmuebles(query, filtros, k)` combina similitud semántica (embedding de la
 consulta con la función por defecto de Chroma) con filtros de metadata. **Siempre**
 filtra por `tenant_id` (multitenant desde el día 1).
+
+`obtener_inmueble_por_codigo(codigo)` hace lookup exacto por id de Chroma (sin embedding),
+útil cuando el cliente menciona el código numérico del inmueble directamente.
 """
+
+import json
 
 from app.core.config import settings
 from app.rag.chroma_client import COLLECTION_NAME, get_chroma_client
@@ -27,6 +32,20 @@ def _construir_where(filtros: dict | None, tenant_id: str) -> dict:
     return cond[0] if len(cond) == 1 else {"$and": cond}
 
 
+def _formatear_meta(meta: dict, relevancia: float | None = None) -> dict:
+    """Copia la metadata de Chroma, añade relevancia y deserializa `imagenes` (JSON string)."""
+    meta = dict(meta or {})
+    if relevancia is not None:
+        meta["relevancia"] = relevancia
+    imagenes_raw = meta.get("imagenes")
+    if isinstance(imagenes_raw, str):
+        try:
+            meta["imagenes"] = json.loads(imagenes_raw)
+        except (ValueError, TypeError):
+            meta["imagenes"] = []
+    return meta
+
+
 def buscar_inmuebles(query: str, filtros: dict | None = None, k: int = 5) -> list[dict]:
     """Devuelve hasta `k` inmuebles por similitud semántica + filtros, ordenados por relevancia."""
     col = get_chroma_client().get_or_create_collection(COLLECTION_NAME)
@@ -37,8 +56,24 @@ def buscar_inmuebles(query: str, filtros: dict | None = None, k: int = 5) -> lis
     dists = (res.get("distances")  or [[]])[0]
     salida = []
     for i, _id in enumerate(ids):
-        meta = dict(metas[i] or {})
         dist = dists[i] if i < len(dists) else None
-        meta["relevancia"] = round(1.0 / (1.0 + dist), 4) if dist is not None else None
-        salida.append(meta)
+        relevancia = round(1.0 / (1.0 + dist), 4) if dist is not None else None
+        salida.append(_formatear_meta(metas[i], relevancia))
     return salida
+
+
+def obtener_inmueble_por_codigo(codigo: str) -> dict | None:
+    """Lookup exacto por código (document id en Chroma). Respeta tenant_id. Sin embedding."""
+    codigo = str(codigo).strip()
+    if not codigo:
+        return None
+    col = get_chroma_client().get_or_create_collection(COLLECTION_NAME)
+    res = col.get(
+        ids=[codigo],
+        where={"tenant_id": {"$eq": settings.DEFAULT_TENANT_ID}},
+    )
+    ids = res.get("ids") or []
+    metas = res.get("metadatas") or []
+    if not ids or not metas:
+        return None
+    return _formatear_meta(metas[0], relevancia=1.0)

@@ -1,11 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  color-scheme: light dark;
+  /* Neutros */
+  --ink:         #1A1A1A;
+  --charcoal:    #3D3D3D;
+  --gray:        #7A7A7A;
+  --gray-soft:   #9A9A9A;
+  --line:        #E5E5E5;
+  --line-soft:   #EFEFEF;
+  --bg:          #FAFAFA;
+  --card:        #FFFFFF;
+
+  /* Acento lujo — champagne (solo detalles finos) */
+  --champ:       #A8884E;
+  --champ-soft:  #C9B489;
+  --champ-bg:    #F6F1E7;
+
+  /* Canal mensajería (SOLO WhatsApp / handoff) */
+  --wa:          #25D366;
+
+  /* Temperatura */
+  --hot:         #B4543A;
+  --hot-bg:      #F6E9E4;
+  --warm:        #B08428;
+  --warm-bg:     #F7F0DE;
+  --cold:        #4A6275;
+  --cold-bg:     #E8EDF1;
+  --unknown:     #7A7A7A;
+  --unknown-bg:  #EFEFEF;
+
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-* {
-  box-sizing: border-box;
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
 }
 
 body {

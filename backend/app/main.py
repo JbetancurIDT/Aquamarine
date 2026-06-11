@@ -7,6 +7,10 @@ que sirve como prueba de conexión end-to-end con el frontend.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.chat import router as chat_router
+from app.api.leads import router as leads_router
+from app.api.mensajes import router as mensajes_router
+from app.api.metrics import router as metrics_router
 from app.api.rag import router as rag_router
 from app.core.config import settings
 
@@ -31,3 +35,7 @@ def health() -> dict[str, str]:
 
 # Routers de feature.
 app.include_router(rag_router)
+app.include_router(leads_router)
+app.include_router(mensajes_router)
+app.include_router(metrics_router)
+app.include_router(chat_router)

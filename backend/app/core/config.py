@@ -28,6 +28,11 @@ class Settings(BaseSettings):
 
     # Claves de servicios externos (se completan en épicas posteriores).
     ANTHROPIC_API_KEY: str = ""
+    # Modelo de Claude para el agente Aqua (ID sin sufijo de fecha). Sonnet 4.6 soporta
+    # tool use + prompt caching; subir a claude-opus-4-8 para la demo.
+    ANTHROPIC_MODEL: str = "claude-sonnet-4-6"
+    # Modelo barato para la extracción estructurada del perfil (tarea mecánica).
+    ANTHROPIC_EXTRACTION_MODEL: str = "claude-haiku-4-5"
     FIRECRAWL_API_KEY: str = ""
 
     # Entorno de ejecución: development | staging | production.

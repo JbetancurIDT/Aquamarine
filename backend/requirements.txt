@@ -11,3 +11,4 @@ python-dotenv
 anthropic
 httpx
 firecrawl-py
+pytest

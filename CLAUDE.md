@@ -20,6 +20,8 @@ actualiza su `<feature>.md` y enlázalo en esta tabla.**
 | Feature | Doc | Resumen |
 |---|---|---|
 | Scraping + RAG (ingesta e índice de inmuebles) | [scraper.md](scraper.md) | Firecrawl → `InmuebleIn` → Chroma; búsqueda semántica + filtros; `POST /rag/reindex` |
+| CRM / Backend Core (leads, conversación, pipeline, métricas) | [crm.md](crm.md) | Modelos Postgres + eventos; API `/leads`, `/leads/{id}/mensajes`, `/metrics/overview` |
+| Agente Aqua (IA conversacional sobre Claude) | [agent.md](agent.md) | System prompt + tool `buscar_inmuebles` + loop de tool use; endpoint `POST /chat` |
 
 ## Dónde está el contexto del proyecto
 
