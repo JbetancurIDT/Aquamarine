@@ -2,7 +2,7 @@
 tipo: moc
 audiencia: dev
 estado: en-progreso
-actualizado: 2026-06-10
+actualizado: 2026-06-11
 tags: [moc, area/desarrollo]
 ---
 
@@ -23,13 +23,13 @@ tags: [moc, area/desarrollo]
 |---|---|---|---|
 | E00 | [[E00 - Setup y Fundaciones]] | Repos, esqueletos, BD, entorno | ✅ `completado` |
 | E01 | [[E01 - Ingesta RAG (Firecrawl + Chroma)]] | Inventario real en base vectorial | ✅ `completado` |
-| E02 | [[E02 - Backend Core (FastAPI + Postgres)]] | Modelos, CRUD, ciclo del lead | `pendiente` |
-| E03 | [[E03 - Agente IA (Claude)]] | Conversación, perfilamiento, scoring | `pendiente` |
-| E04 | [[E04 - Chatbot Frontend (React)]] | UI de chat para el lead | `pendiente` |
-| E05 | [[E05 - CRM Pipeline y Dashboard]] | Panel de leads, métricas, embudo | `pendiente` |
-| E06 | [[E06 - Handoff Asesor]] | Notificación + cambio de estado | `pendiente` |
-| E07 | [[E07 - Demo, Seed y Pulido]] | Datos demo + guion técnico + fixes | `pendiente` |
-| E08 | [[E08 - Agente de Métricas (Gerencia)]] | Agente para Claudia: métricas en lenguaje natural | `pendiente` (valor agregado) |
+| E02 | [[E02 - Backend Core (FastAPI + Postgres)]] | Modelos, CRUD, ciclo del lead | ✅ `completado` |
+| E03 | [[E03 - Agente IA (Claude)]] | Conversación, perfilamiento, scoring | ✅ `completado` |
+| E04 | [[E04 - Chatbot Frontend (React)]] | UI de chat para el lead | ✅ `completado` (falta solo validar paleta + tests de front) |
+| E05 | [[E05 - CRM Pipeline y Dashboard]] | Panel de leads, métricas, embudo | ✅ `completado` (dashboard KPIs+funnel+donut, pipeline Kanban, /performance, modal centrado, scrollbar de marca) |
+| E06 | [[E06 - Handoff Asesor]] | Notificación + cambio de estado | ✅ `completado` (auto-asignación balanceada, takeover humano, chat en vivo, notificaciones escalonadas + reasignación) |
+| E07 | [[E07 - Demo, Seed y Pulido]] | Datos demo + guion técnico + fixes | 🟡 `en-progreso` (seeds hechos; falta guion/pulido/checklist e2e) |
+| E08 | [[E08 - Agente de Métricas (Gerencia)]] | Agente para Claudia: métricas en lenguaje natural | 🟡 `en-progreso` (/performance + métricas por asesor ya; falta burbuja Analyst §4.5) |
 
 ## Camino crítico (2 días)
 ```

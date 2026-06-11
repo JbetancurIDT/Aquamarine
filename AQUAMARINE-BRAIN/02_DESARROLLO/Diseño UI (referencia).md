@@ -43,6 +43,7 @@ tags: [area/desarrollo, comp/frontend, diseño, ui]
 | Caliente (`hot`) | `#B4543A` | `#F6E9E4` |
 | Tibio (`warm`) | `#B08428` | `#F7F0DE` |
 | Frío (`cold`) | `#4A6275` | `#E8EDF1` |
+| Desconocido (`unknown`, sin calificar) | `#7A7A7A` (gris) | `#EFEFEF` |
 
 **Semáforo SLA / desempeño** (cumplimiento del asesor)
 | Estado | Color | Fondo (-bg) |

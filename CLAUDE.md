@@ -3,12 +3,14 @@
 Este es el repositorio del **producto real** de Aquamarine: el agente de IA + CRM + dashboard
 para Aquamarine Group SAS (finca raíz de lujo). Repo git independiente del de documentación.
 
-> [!note] Estado actual
-> **Épica E00 (Setup y Fundaciones) completada.** Ya existen los esqueletos de `backend/`
-> (FastAPI + SQLAlchemy/Alembic + Chroma) y `frontend/` (React + TS con Vite), más `docs/`,
-> `.gitignore` y este `CLAUDE.md`/`README.md`. Hay un "hola mundo" end-to-end: `/chat`
-> consulta `/health` del backend. La lógica de negocio (RAG, agente, CRM) se construye en
-> E01→E07. Este documento se irá actualizando conforme avance el proyecto.
+> [!note] Estado actual (actualizado 2026-06-10)
+> **E00–E03 completadas:** Setup + Ingesta RAG (Firecrawl→Chroma) + Backend Core (FastAPI +
+> Postgres: leads, mensajes, métricas, eventos) + Agente Aqua (Claude, tool `buscar_inmuebles`,
+> perfilamiento, scoring, handoff mínimo). **E04 (Chatbot Frontend) funcional end-to-end**
+> (chat React cableado a `POST /chat`, tarjetas de inmueble, badge de temperatura); falta
+> validar paleta/diseño, tests de front y doc de feature. **Pendientes:** E05 (CRM/Dashboard,
+> hoy stub), E06 (notificación/UI/impersonación de handoff), E07 (demo/seed), E08 (agente de
+> métricas). Detalle vivo en `AQUAMARINE-BRAIN/04_PROGRESO/`.
 
 ## Dónde está el contexto del proyecto
 
@@ -47,7 +49,7 @@ Aquamarine Project/
 │   │   └── core/        # config.py, db.py
 │   ├── scripts/         # ingesta, seed
 │   ├── alembic/         # migraciones (env.py lee DATABASE_URL de settings)
-│   ├── requirements.txt · Dockerfile · .env.example
+│   ├── requirements.txt · .env.example   # (sin Dockerfile: la app corre nativa, ver D10)
 ├── frontend/       # React + TS con Vite (chat + dashboard)
 │   └── src/{pages,api}, App.tsx, main.tsx
 └── docs/           # documentación local (la vault Obsidian es la fuente de verdad)
@@ -61,7 +63,8 @@ Arranque y verificación: ver `README.md`. Diseño objetivo: `Arquitectura.md` e
 ANTHROPIC_API_KEY=
 FIRECRAWL_API_KEY=
 DATABASE_URL=postgresql://...
-CHROMA_PERSIST_DIR=./chroma_store
+CHROMA_HOST=localhost
+CHROMA_PORT=8002
 ```
 
 ## Principios a respetar al construir
