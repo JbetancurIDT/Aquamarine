@@ -10,8 +10,6 @@ from app.schemas.mensaje import MensajeOut
 
 
 class LeadCreate(BaseModel):
-    # Opcional: lo simula la URL /chat/<origen>/; None si no se sabe (D15). Sigue validando
-    # contra el catálogo de orígenes (valor inválido → 422 en POST /leads).
     origen: Origen | None = None
     nombre: str | None = None
     contacto: str | None = None
@@ -20,8 +18,6 @@ class LeadCreate(BaseModel):
 
 
 class LeadUpdate(BaseModel):
-    # Todos opcionales. El estado/score/temperatura NO se tocan aquí: van por
-    # endpoints/servicios dedicados que emiten su evento (set_estado / set_score).
     nombre: str | None = None
     contacto: str | None = None
     idioma: str | None = None
@@ -35,15 +31,19 @@ class LeadOut(BaseModel):
     tenant_id: UUID
     nombre: str | None
     contacto: str | None
-    origen: str
+    origen: str | None
     idioma: str | None
-    score: int
+    score: int | None
     temperatura: str
     estado: str
     perfil: dict
     asesor_id: UUID | None
     creado_en: datetime
     actualizado_en: datetime
+    # E07: takeover humano
+    atendido_por_humano: bool = False
+    asignado_en: datetime | None = None
+    notificaciones_count: int = 0
 
 
 class LeadConMensajes(LeadOut):
@@ -54,3 +54,11 @@ class LeadConMensajes(LeadOut):
 
 class EstadoUpdate(BaseModel):
     estado: Estado  # inválido → 422
+
+
+class AsesorUpdate(BaseModel):
+    asesor_id: UUID | None  # None = desasignar
+
+
+class TomarLeadBody(BaseModel):
+    asesor_id: UUID

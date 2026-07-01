@@ -38,5 +38,30 @@ class Settings(BaseSettings):
     # Entorno de ejecución: development | staging | production.
     ENVIRONMENT: str = "development"
 
+    # ── Handoff, auto-asignación y notificaciones escalonadas (E07) ──────────
+    MAX_LEADS_ACTIVOS_POR_ASESOR: int = 5
+    NOTIF_MAX_ANTES_REASIGNAR: int = 5
+    SWEEP_INTERVALO_SEG: int = 60     # cada cuánto corre el barrido (segundos)
+    # NOTIF_SCALE: divide los intervalos base → útil para demo con tiempos cortos.
+    # Ejemplo: NOTIF_SCALE=60 convierte 300s→5s (caliente avisa en 5 s en vez de 5 min).
+    NOTIF_SCALE: float = 1.0
+
+    # Intervalos base de notificación por temperatura (segundos)
+    NOTIF_SEG_CALIENTE: int = 300
+    NOTIF_SEG_TIBIO: int = 1200
+    NOTIF_SEG_FRIO: int = 3600
+    NOTIF_SEG_DESCONOCIDO: int = 1200
+
+    @property
+    def notif_intervalos_seg(self) -> dict:
+        """Intervalos efectivos tras aplicar NOTIF_SCALE."""
+        scale = max(self.NOTIF_SCALE, 0.001)
+        return {
+            "caliente":    max(1, int(self.NOTIF_SEG_CALIENTE / scale)),
+            "tibio":       max(1, int(self.NOTIF_SEG_TIBIO / scale)),
+            "frio":        max(1, int(self.NOTIF_SEG_FRIO / scale)),
+            "desconocido": max(1, int(self.NOTIF_SEG_DESCONOCIDO / scale)),
+        }
+
 
 settings = Settings()

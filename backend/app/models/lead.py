@@ -4,7 +4,7 @@ Entidad central del CRM: el cliente potencial. Su "conversación" son sus `mensa
 ordenados por fecha; cada cambio relevante emite un `evento` (base de las métricas).
 """
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func, text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, func, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 
@@ -30,6 +30,16 @@ class Lead(Base):
     perfil = Column(JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb"))
 
     asesor_id = Column(UUID(as_uuid=True), ForeignKey("asesores.id"), nullable=True, index=True)
+
+    # ── Campos E07: takeover humano + notificaciones escalonadas ─────────────
+    atendido_por_humano = Column(
+        Boolean, nullable=False, default=False, server_default=text("false")
+    )
+    asignado_en = Column(DateTime(timezone=True), nullable=True)
+    ultima_notificacion_en = Column(DateTime(timezone=True), nullable=True)
+    notificaciones_count = Column(
+        Integer, nullable=False, default=0, server_default=text("0")
+    )
 
     creado_en = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
     actualizado_en = Column(

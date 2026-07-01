@@ -38,7 +38,8 @@ class ChatResponse(BaseModel):
     inmuebles: list[dict]
     handoff: bool
     temperatura: str
-    lead_id: UUID  # para que el front continúe la charla
+    lead_id: UUID
+    atendido_por_humano: bool = False  # True = IA silenciada, asesor humano al mando
 
 
 def _procesar_turno(

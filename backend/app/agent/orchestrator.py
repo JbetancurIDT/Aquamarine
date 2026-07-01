@@ -84,7 +84,25 @@ def _extraer_texto(respuesta) -> str:
 
 
 def responder(db: Session, lead: Lead, mensaje_usuario: str) -> dict:
-    """Procesa un turno: persiste, llama a Claude (con tool use) y devuelve la respuesta."""
+    """Procesa un turno: persiste, llama a Claude (con tool use) y devuelve la respuesta.
+
+    Si el lead ya fue tomado por un asesor humano (`atendido_por_humano=True`), persiste
+    el mensaje del lead pero NO llama a la IA. El asesor responde por su cuenta.
+    """
+    # Takeover: IA silenciada — solo persiste el mensaje del lead.
+    if lead.atendido_por_humano:
+        lead_service.agregar_mensaje(
+            db, lead, MensajeCreate(rol="lead", contenido=mensaje_usuario)
+        )
+        return {
+            "respuesta": "",
+            "inmuebles": [],
+            "handoff": False,
+            "temperatura": lead.temperatura,
+            "lead_id": lead.id,
+            "atendido_por_humano": True,
+        }
+
     # 1) Persistir el mensaje del lead.
     lead_service.agregar_mensaje(
         db, lead, MensajeCreate(rol="lead", contenido=mensaje_usuario)
@@ -191,11 +209,11 @@ def responder(db: Session, lead: Lead, mensaje_usuario: str) -> dict:
         logger.exception("Post-turno (perfil/scoring/handoff) falló: %s", exc)
         temperatura = lead.temperatura  # conserva lo que haya
 
-    # TODO: el handoff REAL (asignar asesor) es E06; aquí solo el flag.
     return {
         "respuesta": texto_final,
         "inmuebles": inmuebles_sugeridos,
         "handoff": handoff,
         "temperatura": temperatura,
         "lead_id": lead.id,
+        "atendido_por_humano": False,
     }

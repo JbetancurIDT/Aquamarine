@@ -1,24 +1,42 @@
-"""Punto de entrada de la API de Aquamarine (E00 · T00.2.1 / T00.5.1).
+"""Punto de entrada de la API de Aquamarine (E00 → E07).
 
-App FastAPI mínima con CORS abierto (solo desarrollo) y un endpoint `/health`
-que sirve como prueba de conexión end-to-end con el frontend.
+App FastAPI con CORS abierto (solo desarrollo) y lifespan que arranca el
+barrido periódico de notificaciones/reasignación (sweep_loop, E07).
 """
+
+import asyncio
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.asesores import router as asesores_router
 from app.api.chat import router as chat_router
+from app.api.insights import router as insights_router
 from app.api.leads import router as leads_router
 from app.api.mensajes import router as mensajes_router
 from app.api.metrics import router as metrics_router
 from app.api.rag import router as rag_router
 from app.core.config import settings
+from app.services.sweep import sweep_loop
 
-app = FastAPI(title="Aquamarine API")
 
-# CORS abierto solo para desarrollo. Se restringe en E02 (backend core / auth).
-# Nota: con allow_origins=["*"] no se habilitan credenciales (incompatibles con
-# el comodín en navegadores); para el MVP no se usan cookies cross-origin.
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(sweep_loop())
+    try:
+        yield
+    finally:
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
+
+
+app = FastAPI(title="Aquamarine API", lifespan=lifespan)
+
+# CORS abierto solo para desarrollo.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -38,4 +56,6 @@ app.include_router(rag_router)
 app.include_router(leads_router)
 app.include_router(mensajes_router)
 app.include_router(metrics_router)
+app.include_router(asesores_router)
 app.include_router(chat_router)
+app.include_router(insights_router)

@@ -14,8 +14,16 @@ BUSCAR_INMUEBLES_TOOL = {
     "description": (
         "Busca inmuebles reales del inventario de Aquamarine por significado + filtros. "
         "Úsala cuando el cliente quiera ver inmuebles o cuando ya entiendas su necesidad "
-        "(tipo, zona, presupuesto). Devuelve hasta 3 opciones para que las presentes de "
-        "forma natural. No la uses para charla general ni para saludar."
+        "(tipo, zona, presupuesto). La búsqueda es TOLERANTE: relaja sola los criterios y "
+        "devuelve alternativas cercanas si no hay match idéntico, marcando cada opción como "
+        "exacta o cercana. Devuelve hasta 3 opciones para que las presentes de forma natural. "
+        "No la uses para charla general ni para saludar.\n\n"
+        "REGLAS para no sobre-filtrar (clave para encontrar lo que SÍ existe):\n"
+        "- En `tipo` usa la categoría AMPLIA (casa, apartamento, lote, finca), NO frases "
+        "específicas como 'casa campestre' o 'penthouse' (el motor ya entiende familias y el "
+        "texto semántico captura el matiz). Ante la duda, omite `tipo` y deja que el `query` lo capture.\n"
+        "- SIEMPRE pasa `precio_min`/`precio_max`, `habitaciones` y `banos` cuando el cliente los dé.\n"
+        "- `zona`/`ciudad` se usan como pista flexible (substring tolerante), no como filtro exacto."
     ),
     "input_schema": {
         "type": "object",
@@ -23,20 +31,29 @@ BUSCAR_INMUEBLES_TOOL = {
             "query": {
                 "type": "string",
                 "description": (
-                    "Qué busca el cliente, en lenguaje natural "
-                    "(p.ej. 'apartamento de lujo en El Poblado con 3 habitaciones'). "
+                    "Qué busca el cliente, en lenguaje natural, INCLUYENDO los matices "
+                    "(p.ej. 'casa campestre amplia en Las Palmas con jardín y 4 habitaciones'). "
                     "Requerido siempre; puede ser cadena vacía si solo usas `codigo`."
                 ),
             },
             "filtros": {
                 "type": "object",
-                "description": "Filtros opcionales para acotar la búsqueda semántica.",
+                "description": "Filtros opcionales. Numéricos = duros; tipo/zona/ciudad = pistas tolerantes.",
                 "properties": {
                     "ciudad": {"type": "string"},
                     "zona": {"type": "string"},
-                    "tipo": {"type": "string", "description": "apartamento | casa | lote | ..."},
+                    "tipo": {
+                        "type": "string",
+                        "description": (
+                            "Categoría AMPLIA: apartamento | casa | finca | lote | local. "
+                            "NO uses subtipos ('casa campestre', 'penthouse'): van en `query`."
+                        ),
+                    },
+                    "tipo_negocio": {"type": "string", "description": "venta | arriendo"},
+                    "precio_min": {"type": "integer", "description": "Precio mínimo en COP, sin puntos."},
                     "precio_max": {"type": "integer", "description": "Precio máximo en COP, sin puntos."},
-                    "habitaciones": {"type": "integer"},
+                    "habitaciones": {"type": "integer", "description": "Mínimo de habitaciones."},
+                    "banos": {"type": "integer", "description": "Mínimo de baños."},
                     "es_lujo": {"type": "boolean"},
                 },
             },
@@ -57,18 +74,29 @@ BUSCAR_INMUEBLES_TOOL = {
 def _formatear_linea(inm: dict, numero: int) -> str:
     precio = inm.get("precio")
     precio_txt = f"${precio:,} COP" if isinstance(precio, int) else "precio a consultar"
+    # Etiqueta de honestidad: distingue match exacto de alternativa cercana (para que Aqua
+    # lo comunique sin inventar un "no hay").
+    coincidencia = inm.get("coincidencia")
+    if coincidencia == "cercana":
+        etiqueta = f"  [ALTERNATIVA CERCANA — {inm.get('motivo', 'opción parecida')}]"
+    elif coincidencia == "exacta":
+        etiqueta = "  [COINCIDENCIA EXACTA]"
+    else:
+        etiqueta = ""
     return (
         f"{numero}. {inm.get('titulo', 'Inmueble')} — {inm.get('tipo', '?')} en "
         f"{inm.get('zona', '?')}, {inm.get('ciudad', '?')}. {precio_txt}. "
         f"{inm.get('habitaciones', '?')} hab, {inm.get('banos', '?')} baños "
-        f"(id {inm.get('inmueble_id')})."
+        f"(id {inm.get('inmueble_id')}).{etiqueta}"
     )
 
 
 def ejecutar_buscar_inmuebles(args: dict) -> tuple[str, list[dict]]:
     """Ejecuta la búsqueda RAG. Devuelve (texto_para_claude, inmuebles_crudos).
 
-    Si `args["codigo"]` tiene valor, hace lookup exacto; si no, búsqueda semántica.
+    Si `args["codigo"]` tiene valor, hace lookup exacto; si no, búsqueda semántica tolerante
+    (con relajación). El texto distingue claramente "coincidencia exacta" de "alternativa
+    cercana" para que el agente sea honesto y NUNCA afirme un "no hay" infundado.
     Contrato de retorno: (str, list[dict]) — sin romper aunque Chroma no devuelva nada.
     """
     args = args or {}
@@ -83,13 +111,30 @@ def ejecutar_buscar_inmuebles(args: dict) -> tuple[str, list[dict]]:
             )
         return (_formatear_linea(inm, 1), [inm])
 
-    # Camino semántico existente.
+    # Camino semántico tolerante (over-fetch + relax-and-retry dentro de buscar_inmuebles).
     query = args.get("query") or ""
     filtros = args.get("filtros") or None
     inmuebles = buscar_inmuebles(query, filtros, k=3)
 
     if not inmuebles:
-        return ("Sin resultados: no hay inmuebles que coincidan con esos criterios.", [])
+        # Vacío real solo si NO hay nada dentro de precio/habitaciones ni ampliando ±15%.
+        return (
+            "Sin resultados dentro de esos parámetros, ni siquiera ampliando el rango. "
+            "NO afirmes tajante que 'no existe nada': ofrece seguir buscando y pregunta si "
+            "puede flexibilizar zona, tipo o presupuesto.",
+            [],
+        )
+
+    hay_exacta  = any(i.get("coincidencia") == "exacta" for i in inmuebles)
+    hay_cercana = any(i.get("coincidencia") == "cercana" for i in inmuebles)
+    if hay_exacta and hay_cercana:
+        encabezado = ("Encontré opciones: algunas calzan exacto con lo pedido y otras son "
+                      "alternativas cercanas. Preséntalas con honestidad (di cuáles son alternativas):")
+    elif hay_exacta:
+        encabezado = "Encontré opciones que CALZAN con lo que pidió el cliente:"
+    else:
+        encabezado = ("No hay un match idéntico, pero estas ALTERNATIVAS CERCANAS encajan bien. "
+                      "Ofrécelas proactivamente como alternativas (sin decir que 'no hay nada'):")
 
     lineas = [_formatear_linea(inm, i) for i, inm in enumerate(inmuebles, 1)]
-    return ("\n".join(lineas), inmuebles)
+    return (encabezado + "\n" + "\n".join(lineas), inmuebles)
