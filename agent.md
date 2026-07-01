@@ -15,8 +15,17 @@ E02 (persistencia de leads/mensajes).
 - **`app/agent/prompts.py`** — `SYSTEM_PROMPT`: constante **estable** (sin fechas/IDs, para que el
   prompt caching funcione) con identidad/tono de Aqua, reglas de Claudia (nada de formularios, entender
   antes de ofrecer, no abrumar), las 4 dimensiones a perfilar, cuándo usar la tool y el handoff.
+  - **Búsqueda honesta — reglas duras (E09):** Aqua **nunca** afirma "no hay inmuebles" sin que la
+    herramienta (ya con relajación) devuelva vacío de verdad; si hay **alternativas cercanas** las ofrece
+    proactivamente y con honestidad; **prohibido** mandar al cliente a la web o pedirle el código para que
+    busque él — Aqua busca por él.
 - **`app/agent/tools.py`** — `BUSCAR_INMUEBLES_TOOL` (schema para Claude, descripción prescriptiva) +
   `ejecutar_buscar_inmuebles(args)` → `(texto_compacto, inmuebles_crudos)`, reusando `app.rag.search`.
+  - **Guardrails de búsqueda (E09):** la descripción instruye a **no sobre-filtrar** — `tipo` solo como
+    categoría amplia (casa/apartamento/finca/lote), nunca subtipos ("casa campestre"/"penthouse", que van
+    en el `query`); **siempre** pasar `precio_min`/`precio_max`/`habitaciones`/`banos` que dé el cliente.
+    El texto de retorno **distingue `[COINCIDENCIA EXACTA]` de `[ALTERNATIVA CERCANA — motivo]`** y, ante
+    vacío real, instruye al agente a **no afirmar "no existe nada"** sino a ofrecer seguir buscando.
 - **`app/agent/profiler.py`** — `PerfilExtraido` (schema) + `extraer_perfil(historial)` (una llamada de
   **extracción estructurada** con un modelo barato — solo lo confirmado, el resto `None`) +
   `fusionar_perfil(db, lead, extraido)` (persiste sin pisar datos previos con `None`). Detecta también el **idioma** (es/en).
@@ -30,7 +39,10 @@ E02 (persistencia de leads/mensajes).
   en un **post-turno** (try/except, no rompe la respuesta): extrae+fusiona el perfil (incl. **origen deducido** e
   intención de hablar con un humano) → si `pide_humano` hace **handoff por solicitud** (sin calificar →
   `temperatura="desconocido"`, `score=None`) → si no, calcula score/temperatura, mueve el estado
-  (nuevo→contactado; caliente→handoff; tibio/frío→nurturing). Devuelve `{respuesta, inmuebles, handoff, temperatura, lead_id}`.
+  (nuevo→contactado; caliente→handoff; tibio/frío→nurturing). Devuelve `{respuesta, inmuebles, handoff, temperatura, lead_id, atendido_por_humano}`.
+  - **Takeover (E07):** si `lead.atendido_por_humano` es `True`, **la IA se silencia**: solo persiste el
+    mensaje del lead y devuelve `{respuesta:"", atendido_por_humano:True}` sin llamar a Claude. El asesor
+    humano responde por su cuenta (ver [handoff.md](handoff.md)).
 - **`app/api/chat.py`** — `POST /chat` `{lead_id?, mensaje, origen?}` → `{respuesta, inmuebles, handoff, temperatura, lead_id}`.
   **Unificado: si no llega `lead_id`, el agente CREA el lead** (emite `lead_creado`) y devuelve su `lead_id`;
   si llega, continúa la charla (404 si no existe; mensaje vacío → 422). El `origen` lo simula la URL

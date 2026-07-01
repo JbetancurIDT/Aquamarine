@@ -36,9 +36,19 @@ Re-ejecutable on-demand (CLI o endpoint). La extracción la hace **Firecrawl**, 
   `imagenes` → JSON string.
 
 ## Capacidades
-- **`buscar_inmuebles(query, filtros, k=5)`** (`app/rag/search.py`): similitud semántica + filtros de
-  metadata. Filtra **siempre** por `tenant_id`. Filtros: `ciudad`, `zona`, `tipo`, `tipo_negocio`,
-  `precio_min`/`precio_max`, `habitaciones`, `banos`, `es_lujo`. Devuelve metadata + `relevancia`.
+- **`buscar_inmuebles(query, filtros, k=5)`** (`app/rag/search.py`): búsqueda **tolerante** (E09).
+  - **Filtros duros en el `where` de Chroma** (numéricos/confiables): `tenant_id`, `tipo_negocio`,
+    `precio_min`/`precio_max`, `habitaciones`/`banos` (≥), `es_lujo`.
+  - **`tipo`/`zona`/`ciudad` NO van como `$eq` duro** (era la causa de los 0 resultados): se inyectan
+    en el texto de la consulta (señal semántica) y se aplican como **post-filtro tolerante** —
+    normalización sin acentos + `contains` + **aliases de tipo** (familias: casa↔finca↔campestre,
+    apartamento↔apto↔penthouse, lote↔terreno). "Las Palmas" hace match en "Alto de las Palmas".
+  - **Relax-and-retry:** over-fetch (20) y, si quedan < k, relaja en orden **zona → tipo → precio ±15%**
+    y reintenta. **Nunca devuelve vacío si hay inmuebles dentro de precio/habitaciones.**
+  - Cada resultado se marca **`coincidencia: "exacta" | "cercana"`** (+ `motivo`) para que el agente
+    distinga matches exactos de alternativas cercanas y lo comunique con honestidad. Devuelve metadata
+    + `relevancia` + `coincidencia` + `motivo`.
+  - `obtener_inmueble_por_codigo(codigo)` (R07) sin cambios: lookup exacto por id, sin embedding.
 - **Endpoints** (`app/api/rag.py`, registrados en `app/main.py`):
   - `POST /rag/reindex` — dispara la ingesta (cuerpo `{base_url?, urls?, limit?}`); el botón del dashboard
     la usará en E05. Síncrono en el MVP (TODO: background/cola si hace falta).
@@ -60,8 +70,9 @@ Variables en `backend/.env`: `FIRECRAWL_API_KEY`, `CHROMA_HOST` (localhost), `CH
 - **Costo Firecrawl:** ~1 crédito por ficha; `max_age` de 48h cachea y evita re-scrapear (re-correr es ~gratis).
   El barrido completo (~130 fichas) lo dispara el usuario, no automático. Circuit-breaker: aborta tras 5 errores seguidos.
 - **R01:** por ahora una sola fuente (`idealrealestate.com.co`); el base URL entra por parámetro, no se hardcodea.
-- **Filtros `zona`/`ciudad` exactos** (`$eq`): la web usa "Poblado Campestre", no "El Poblado".
-  TODO: matching flexible (aliases/substring).
+- **Matching de `zona`/`ciudad`/`tipo` ya NO es `$eq` duro** (resuelto en E09): es post-filtro tolerante
+  (sin acentos + substring + aliases) con relax-and-retry. Mejora opcional pendiente: enriquecer el
+  `document` embebido con sinónimos en `ingest.py` (no obligatorio; el post-filtro ya resuelve el recall).
 
 ## Archivos
 `app/rag/firecrawl_client.py` (extract/map/mapper), `app/rag/ingest.py` (orquestación), `app/rag/search.py`

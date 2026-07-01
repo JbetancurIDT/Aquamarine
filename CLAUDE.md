@@ -4,11 +4,13 @@ Este es el repositorio del **producto real** de Aquamarine: el agente de IA + CR
 para Aquamarine Group SAS (finca raíz de lujo). Repo git independiente del de documentación.
 
 > [!note] Estado actual
-> **Épica E00 (Setup y Fundaciones) completada.** Ya existen los esqueletos de `backend/`
-> (FastAPI + SQLAlchemy/Alembic + Chroma) y `frontend/` (React + TS con Vite), más `docs/`,
-> `.gitignore` y este `CLAUDE.md`/`README.md`. Hay un "hola mundo" end-to-end: `/chat`
-> consulta `/health` del backend. La lógica de negocio (RAG, agente, CRM) se construye en
-> E01→E07. Este documento se irá actualizando conforme avance el proyecto.
+> **Épicas E00–E07 completadas.** Backend completo: modelos Postgres, agente conversacional con tool
+> use, RAG semántico + búsqueda exacta, endpoints leads / asesores / métricas con filtros, handoff
+> automático con **balanceo por carga**, **takeover humano** (IA silenciada), **barrido** de
+> notificaciones + reasignación, `GET /metrics/asesores` + `/metrics/propiedades` (mock). Frontend:
+> `/chat` (+ banner de asesor humano), `/dashboard` (KPIs + funnel + donut + inventario + equipo),
+> `/pipeline` (Kanban), `/asesor/:id` (en-vivo + disponibilidad + campana), `/performance` (SLA).
+> **145 tests backend en verde.** Pendiente: Analyst (§4.5).
 
 ## Documentación por feature (convención)
 
@@ -22,6 +24,9 @@ actualiza su `<feature>.md` y enlázalo en esta tabla.**
 | Scraping + RAG (ingesta e índice de inmuebles) | [scraper.md](scraper.md) | Firecrawl → `InmuebleIn` → Chroma; búsqueda semántica + filtros; `POST /rag/reindex` |
 | CRM / Backend Core (leads, conversación, pipeline, métricas) | [crm.md](crm.md) | Modelos Postgres + eventos; API `/leads`, `/leads/{id}/mensajes`, `/metrics/overview` |
 | Agente Aqua (IA conversacional sobre Claude) | [agent.md](agent.md) | System prompt + tool `buscar_inmuebles` + loop de tool use; endpoint `POST /chat` |
+| Chat del lead (E04) | [chat.md](chat.md) | Chat web público `/chat[/:origen]`; `useChatSession`; tarjetas con imágenes reales; handoff UI |
+| Dashboard métricas + Pipeline Kanban (E05/E06) | [dashboard.md](dashboard.md) | `/dashboard` (KPIs/funnel/donut) + `/pipeline` (Kanban drag-drop + asignar asesor) + `/asesor/:id`; `GET /metrics/overview` con filtros; `PATCH /leads/{id}/asesor`; seed_demo.py |
+| Handoff completo: takeover + barrido + performance (E07) | [handoff.md](handoff.md) | Auto-asignación por carga; `POST /leads/{id}/tomar` (IA silenciada); barrido (notificaciones + reasignación); `/leads/en-vivo`, `PATCH /asesores/{id}/disponibilidad`, `GET /metrics/asesores` + `/metrics/propiedades`; `/performance` con SLA |
 
 ## Dónde está el contexto del proyecto
 
