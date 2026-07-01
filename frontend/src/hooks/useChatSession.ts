@@ -17,6 +17,7 @@ type SessionState = {
   temperatura: string
   cargando: boolean
   error: string | null
+  atendidoPorHumano: boolean
 }
 
 type ChatResponse = {
@@ -25,14 +26,17 @@ type ChatResponse = {
   handoff: boolean
   temperatura: string
   lead_id: string
+  atendido_por_humano: boolean
 }
 
 export function useChatSession(origen: string | undefined): {
   mensajes: Mensaje[]
+  leadId: string | null
   temperatura: string
   cargando: boolean
   error: string | null
   handoff: boolean
+  atendidoPorHumano: boolean
   enviar: (texto: string) => Promise<void>
 } {
   const [state, setState] = useState<SessionState>({
@@ -41,6 +45,7 @@ export function useChatSession(origen: string | undefined): {
     temperatura: 'desconocido',
     cargando: false,
     error: null,
+    atendidoPorHumano: false,
   })
 
   const enviar = useCallback(
@@ -63,25 +68,32 @@ export function useChatSession(origen: string | undefined): {
         let response: ChatResponse
 
         if (state.leadId === null) {
-          // Primer turno: crea el lead
           if (origen !== undefined) {
-            const { data } = await apiClient.post<ChatResponse>(`/chat/${origen}`, {
-              mensaje: texto,
-            })
+            const { data } = await apiClient.post<ChatResponse>(`/chat/${origen}`, { mensaje: texto })
             response = data
           } else {
-            const { data } = await apiClient.post<ChatResponse>('/chat', {
-              mensaje: texto,
-            })
+            const { data } = await apiClient.post<ChatResponse>('/chat', { mensaje: texto })
             response = data
           }
         } else {
-          // Turnos siguientes: reutiliza el lead existente
           const { data } = await apiClient.post<ChatResponse>('/chat', {
             lead_id: state.leadId,
             mensaje: texto,
           })
           response = data
+        }
+
+        if (response.atendido_por_humano) {
+          // IA silenciada: persiste el mensaje del lead pero no agrega burbuja de agente vacía
+          setState((prev) => ({
+            ...prev,
+            leadId: response.lead_id,
+            temperatura: response.temperatura,
+            atendidoPorHumano: true,
+            cargando: false,
+            error: null,
+          }))
+          return
         }
 
         const mensajeAgente: Mensaje = {
@@ -119,10 +131,12 @@ export function useChatSession(origen: string | undefined): {
 
   return {
     mensajes: state.mensajes,
+    leadId: state.leadId,
     temperatura: state.temperatura,
     cargando: state.cargando,
     error: state.error,
     handoff: ultimoHandoff,
+    atendidoPorHumano: state.atendidoPorHumano,
     enviar,
   }
 }

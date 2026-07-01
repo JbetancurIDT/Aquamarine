@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 export type Inmueble = {
   inmueble_id?: string
   titulo?: string
@@ -10,6 +12,8 @@ export type Inmueble = {
   area_m2?: number
   url_fuente?: string
   descripcion?: string
+  imagen_principal?: string
+  imagenes?: string[]
 }
 
 function formatCOP(pesos: number): string {
@@ -18,6 +22,9 @@ function formatCOP(pesos: number): string {
 }
 
 export function PropertyCard({ inmueble }: { inmueble: Inmueble }) {
+  const foto = inmueble.imagen_principal ?? inmueble.imagenes?.[0]
+  const [fotoError, setFotoError] = useState(false)
+
   const specs = [
     inmueble.habitaciones != null ? `${inmueble.habitaciones} hab` : null,
     inmueble.banos != null ? `${inmueble.banos} baños` : null,
@@ -35,13 +42,23 @@ export function PropertyCard({ inmueble }: { inmueble: Inmueble }) {
         boxShadow: '0 1px 4px rgba(26,26,26,.07)',
       }}
     >
-      {/* Foto placeholder */}
-      <div
-        className="flex items-center justify-center h-20 text-xs font-mono"
-        style={{ background: 'var(--line-soft)', color: 'var(--gray-soft)' }}
-      >
-        {inmueble.tipo ?? 'inmueble'}
-      </div>
+      {/* Foto o placeholder */}
+      {foto && !fotoError ? (
+        <img
+          src={foto}
+          alt={inmueble.titulo ?? 'inmueble'}
+          loading="lazy"
+          className="w-full h-28 object-cover"
+          onError={() => setFotoError(true)}
+        />
+      ) : (
+        <div
+          className="flex items-center justify-center h-28 text-xs font-mono"
+          style={{ background: 'var(--line-soft)', color: 'var(--gray-soft)' }}
+        >
+          {inmueble.tipo ?? 'inmueble'}
+        </div>
+      )}
 
       {/* Contenido */}
       <div className="p-3 flex flex-col gap-1">

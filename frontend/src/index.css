@@ -43,6 +43,30 @@ body {
   color: var(--ink);
 }
 
-body {
-  margin: 0;
+/* ── Scrollbar de marca ────────────────────────────────────────────────────
+   Sutil: gris fino en reposo, champagne suave al hover.
+   .scrollbar-brand      (8px) — columnas kanban, modal, listas largas
+   .scrollbar-brand-thin (4px) — timelines, áreas pequeñas               */
+.scrollbar-brand {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
 }
+.scrollbar-brand::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-brand::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 999px;
+}
+.scrollbar-brand::-webkit-scrollbar-thumb:hover { background: var(--champ-soft); }
+.scrollbar-brand::-webkit-scrollbar-track { background: transparent; }
+
+.scrollbar-brand-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.scrollbar-brand-thin::-webkit-scrollbar { width: 4px; height: 4px; }
+.scrollbar-brand-thin::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 999px;
+}
+.scrollbar-brand-thin::-webkit-scrollbar-thumb:hover { background: var(--champ-soft); }
+.scrollbar-brand-thin::-webkit-scrollbar-track { background: transparent; }
