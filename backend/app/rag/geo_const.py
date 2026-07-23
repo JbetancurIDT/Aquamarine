@@ -22,6 +22,10 @@ COORD_LON_KEY = "lon"
 # Nombres EXACTOS de los archivos de datos versionados (en app/rag/data/).
 DATA_METRO_FILE = "metro_estaciones.json"
 DATA_CENTROIDES_FILE = "centroides_zona.json"
+# Archivos generados por las fuentes en vivo (E09·S7, STRETCH). Opcionales: si no existen, el
+# backfill degrada al CORE (solo metro con la semilla). No romper si faltan.
+DATA_POI_FILE = "poi_valle_aburra.json"       # POIs OSM/Overpass por categoría
+DATA_GEOCACHE_FILE = "geocache.json"          # centroides reales (Nominatim) por (zona,ciudad)
 
 # Los 7 slugs congelados de categoría → su clave de metadata plana en Chroma.
 # El orden es estable (se usa para enums en la tool). NO agregar/renombrar sin

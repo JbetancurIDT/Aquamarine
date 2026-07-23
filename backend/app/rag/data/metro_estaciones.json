@@ -1,255 +1,274 @@
 {
   "_meta": {
-    "fuente": "Metro de Medellín — coords públicas aproximadas (semilla E09·S2; regenerable desde GTFS oficial en E09·S7/T09.7.1)",
+    "fuente": "GTFS Metro de Medellín (https://raw.githubusercontent.com/ColombiaInfo/ColombiaGTFS/master/Medellin%20-%20Metro/stops.txt)",
     "convencion_coords": "lat/lon",
-    "n": 41
+    "n": 44,
+    "generado_por": "scripts/build_metro.py (E09·T09.7.1)"
   },
   "estaciones": [
     {
       "nombre": "Acevedo",
-      "linea": "A",
-      "lat": 6.2999,
-      "lon": -75.5586
+      "linea": "",
+      "lat": 6.300053,
+      "lon": -75.558401
     },
     {
       "nombre": "Aguacatala",
-      "linea": "A",
-      "lat": 6.1937,
-      "lon": -75.5814
+      "linea": "",
+      "lat": 6.193766,
+      "lon": -75.581918
     },
     {
       "nombre": "Alejandro Echavarría",
-      "linea": "Tranvía",
-      "lat": 6.2384,
-      "lon": -75.5417
+      "linea": "",
+      "lat": 6.2354,
+      "lon": -75.541534
     },
     {
       "nombre": "Alpujarra",
-      "linea": "A",
-      "lat": 6.2422,
-      "lon": -75.5714
+      "linea": "",
+      "lat": 6.242919,
+      "lon": -75.571362
     },
     {
       "nombre": "Andalucía",
-      "linea": "K",
-      "lat": 6.2962,
-      "lon": -75.554
+      "linea": "",
+      "lat": 6.296184,
+      "lon": -75.551927
+    },
+    {
+      "nombre": "Arvi",
+      "linea": "",
+      "lat": 6.281528,
+      "lon": -75.502935
     },
     {
       "nombre": "Ayurá",
-      "linea": "A",
-      "lat": 6.1834,
-      "lon": -75.5875
+      "linea": "",
+      "lat": 6.186013,
+      "lon": -75.5862
     },
     {
       "nombre": "Bello",
-      "linea": "A",
-      "lat": 6.33,
-      "lon": -75.5537
+      "linea": "",
+      "lat": 6.329885,
+      "lon": -75.553751
     },
     {
       "nombre": "Bicentenario",
-      "linea": "Tranvía",
-      "lat": 6.244,
-      "lon": -75.556
+      "linea": "",
+      "lat": 6.243856,
+      "lon": -75.558526
     },
     {
       "nombre": "Buenos Aires",
-      "linea": "Tranvía",
-      "lat": 6.2419,
-      "lon": -75.5541
+      "linea": "",
+      "lat": 6.241502,
+      "lon": -75.553893
     },
     {
       "nombre": "Caribe",
-      "linea": "A",
-      "lat": 6.2785,
-      "lon": -75.5697
+      "linea": "",
+      "lat": 6.278281,
+      "lon": -75.569368
     },
     {
       "nombre": "Cisneros",
-      "linea": "B",
-      "lat": 6.249,
-      "lon": -75.5747
+      "linea": "",
+      "lat": 6.249005,
+      "lon": -75.575107
     },
     {
       "nombre": "Envigado",
-      "linea": "A",
-      "lat": 6.174,
-      "lon": -75.5928
+      "linea": "",
+      "lat": 6.174692,
+      "lon": -75.597059
     },
     {
       "nombre": "Estadio",
-      "linea": "B",
-      "lat": 6.254,
-      "lon": -75.59
+      "linea": "",
+      "lat": 6.253324,
+      "lon": -75.588236
     },
     {
       "nombre": "Exposiciones",
-      "linea": "A",
-      "lat": 6.2384,
-      "lon": -75.573
+      "linea": "",
+      "lat": 6.238432,
+      "lon": -75.573216
     },
     {
       "nombre": "Floresta",
-      "linea": "B",
-      "lat": 6.2593,
-      "lon": -75.5993
+      "linea": "",
+      "lat": 6.258697,
+      "lon": -75.5977
     },
     {
       "nombre": "Hospital",
-      "linea": "A",
-      "lat": 6.2637,
-      "lon": -75.5619
+      "linea": "",
+      "lat": 6.263677,
+      "lon": -75.56344
     },
     {
       "nombre": "Industriales",
-      "linea": "A",
-      "lat": 6.2302,
-      "lon": -75.5749
+      "linea": "",
+      "lat": 6.230022,
+      "lon": -75.575615
     },
     {
       "nombre": "Itagüí",
-      "linea": "A",
-      "lat": 6.1637,
-      "lon": -75.599
+      "linea": "",
+      "lat": 6.162959,
+      "lon": -75.606705
     },
     {
       "nombre": "Juan XXIII",
-      "linea": "J",
-      "lat": 6.2591,
-      "lon": -75.618
+      "linea": "",
+      "lat": 6.265692,
+      "lon": -75.613689
     },
     {
       "nombre": "La Aurora",
-      "linea": "J",
-      "lat": 6.2762,
-      "lon": -75.625
+      "linea": "",
+      "lat": 6.2811,
+      "lon": -75.614205
     },
     {
       "nombre": "La Estrella",
-      "linea": "A",
-      "lat": 6.1527,
-      "lon": -75.6273
+      "linea": "",
+      "lat": 6.152629,
+      "lon": -75.626464
+    },
+    {
+      "nombre": "Las Torres",
+      "linea": "",
+      "lat": 6.236546,
+      "lon": -75.536281
     },
     {
       "nombre": "Loyola",
-      "linea": "Tranvía",
-      "lat": 6.2405,
-      "lon": -75.5455
+      "linea": "",
+      "lat": 6.239243,
+      "lon": -75.545242
     },
     {
       "nombre": "Madera",
-      "linea": "A",
-      "lat": 6.3157,
-      "lon": -75.5586
+      "linea": "",
+      "lat": 6.316029,
+      "lon": -75.555343
     },
     {
       "nombre": "Miraflores",
-      "linea": "Tranvía",
-      "lat": 6.24,
-      "lon": -75.549
+      "linea": "",
+      "lat": 6.241479,
+      "lon": -75.549068
     },
     {
       "nombre": "Niquía",
-      "linea": "A",
-      "lat": 6.3382,
-      "lon": -75.5449
+      "linea": "",
+      "lat": 6.337876,
+      "lon": -75.544328
     },
     {
       "nombre": "Oriente",
-      "linea": "Tranvía",
-      "lat": 6.2362,
-      "lon": -75.5373
+      "linea": "",
+      "lat": 6.233117,
+      "lon": -75.540004
     },
     {
-      "nombre": "Pabellón del Agua EPM",
-      "linea": "Tranvía",
-      "lat": 6.2451,
-      "lon": -75.5583
+      "nombre": "Pabellón del Agua",
+      "linea": "",
+      "lat": 6.245546,
+      "lon": -75.561822
     },
     {
       "nombre": "Parque Berrío",
-      "linea": "A",
-      "lat": 6.2503,
-      "lon": -75.5681
+      "linea": "",
+      "lat": 6.250538,
+      "lon": -75.568283
     },
     {
       "nombre": "Poblado",
-      "linea": "A",
-      "lat": 6.2124,
-      "lon": -75.5779
+      "linea": "",
+      "lat": 6.211964,
+      "lon": -75.578065
     },
     {
       "nombre": "Popular",
-      "linea": "K",
-      "lat": 6.2948,
-      "lon": -75.5493
+      "linea": "",
+      "lat": 6.295125,
+      "lon": -75.548153
     },
     {
       "nombre": "Prado",
-      "linea": "A",
-      "lat": 6.2561,
-      "lon": -75.5657
+      "linea": "",
+      "lat": 6.256792,
+      "lon": -75.566052
     },
     {
       "nombre": "Sabaneta",
-      "linea": "A",
-      "lat": 6.1573,
-      "lon": -75.6116
+      "linea": "",
+      "lat": 6.157887,
+      "lon": -75.616037
     },
     {
       "nombre": "San Antonio",
-      "linea": "A",
-      "lat": 6.247,
-      "lon": -75.5688
+      "linea": "",
+      "lat": 6.247075,
+      "lon": -75.5695
     },
     {
       "nombre": "San Javier",
-      "linea": "B",
-      "lat": 6.2565,
-      "lon": -75.6134
+      "linea": "",
+      "lat": 6.256829,
+      "lon": -75.613595
     },
     {
       "nombre": "San José",
-      "linea": "Tranvía",
-      "lat": 6.2469,
-      "lon": -75.5645
+      "linea": "",
+      "lat": 6.247373,
+      "lon": -75.565501
     },
     {
       "nombre": "Santa Lucía",
-      "linea": "B",
-      "lat": 6.2612,
-      "lon": -75.6062
+      "linea": "",
+      "lat": 6.258056,
+      "lon": -75.603767
     },
     {
       "nombre": "Santo Domingo",
-      "linea": "K",
-      "lat": 6.2927,
-      "lon": -75.5432
+      "linea": "",
+      "lat": 6.292947,
+      "lon": -75.541807
     },
     {
       "nombre": "Suramericana",
-      "linea": "B",
-      "lat": 6.2535,
-      "lon": -75.583
+      "linea": "",
+      "lat": 6.253005,
+      "lon": -75.583018
     },
     {
       "nombre": "Tricentenario",
-      "linea": "A",
-      "lat": 6.2903,
-      "lon": -75.5637
+      "linea": "",
+      "lat": 6.290311,
+      "lon": -75.564728
     },
     {
       "nombre": "Universidad",
-      "linea": "A",
-      "lat": 6.2693,
-      "lon": -75.5654
+      "linea": "",
+      "lat": 6.269333,
+      "lon": -75.565767
     },
     {
       "nombre": "Vallejuelos",
-      "linea": "J",
-      "lat": 6.2668,
-      "lon": -75.6216
+      "linea": "",
+      "lat": 6.275381,
+      "lon": -75.614019
+    },
+    {
+      "nombre": "Villa Sierra",
+      "linea": "",
+      "lat": 6.234989,
+      "lon": -75.528639
     }
   ]
 }

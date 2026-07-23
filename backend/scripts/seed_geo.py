@@ -42,6 +42,13 @@ from app.rag.geo_const import clave_geocache
 _COORD_SINTETICA = (6.000123, -75.000456)
 _JITTER_GRADOS = 0.002  # ±0.002° ≈ ±220 m: desempata inmuebles que comparten centroide.
 _CHUNK = 100
+# bbox del Valle de Aburrá (cobertura de los POI de Overpass): sur,oeste,norte,este.
+_SUR, _OESTE, _NORTE, _ESTE = 6.06, -75.70, 6.48, -75.28
+
+
+def _en_valle(lat, lon) -> bool:
+    """True si (lat,lon) cae en el bbox donde `build_poi` trajo POIs (fuera → sin cobertura OSM)."""
+    return lat is not None and lon is not None and _SUR <= lat <= _NORTE and _OESTE <= lon <= _ESTE
 
 
 def _es_sintetica_o_cero(lat, lon) -> bool:
@@ -64,6 +71,7 @@ def _jitter(lat: float, lon: float, inmueble_id: str) -> tuple[float, float]:
 def backfill(tenant: str, dry_run: bool = False) -> dict:
     estaciones = geo.cargar_metro()
     centroides = geo.cargar_centroides()
+    pois_osm = geo.cargar_pois()  # {} si aún no se corrieron las fuentes en vivo (E09·S7)
     col = get_chroma_client().get_or_create_collection(COLLECTION_NAME)
 
     res = col.get(where={"tenant_id": {"$eq": tenant}}, include=["metadatas"])
@@ -94,10 +102,15 @@ def backfill(tenant: str, dry_run: bool = False) -> dict:
             lat, lon = None, None
             stats["sin_coords"] += 1
 
-        # POIs por categoría: solo metro (CORE); solo si el municipio tiene metro y hay coords.
+        # POIs por categoría. metro: solo si el municipio tiene metro (Valle de Aburrá).
+        # Las 6 categorías OSM: solo si el inmueble cae en el bbox con cobertura de Overpass
+        # (fuera → no tenemos el dato, se omite: honestidad "OSM no lo tiene" ≠ "no hay").
         pois_por_cat: dict = {}
-        if centroide and centroide.get("metro") and lat is not None:
-            pois_por_cat["metro"] = estaciones
+        if lat is not None:
+            if centroide and centroide.get("metro"):
+                pois_por_cat["metro"] = estaciones
+            if pois_osm and _en_valle(lat, lon):
+                pois_por_cat.update(pois_osm)
 
         nuevas_dist = geo.distancias_por_categoria(lat, lon, pois_por_cat)
         if nuevas_dist:

@@ -17,6 +17,7 @@ from app.rag.geo_const import (
     COORD_LON_KEY,
     DATA_CENTROIDES_FILE,
     DATA_METRO_FILE,
+    DATA_POI_FILE,
 )
 
 _RADIO_TIERRA_M = 6_371_000
@@ -76,3 +77,17 @@ def cargar_metro() -> list[dict]:
 def cargar_centroides() -> dict[str, dict]:
     """Centroides por `clave_geocache(zona,ciudad)` → `{"lat","lon","metro"}`."""
     return _leer_json(DATA_CENTROIDES_FILE)["centroides"]
+
+
+def cargar_pois() -> dict[str, list[dict]]:
+    """POIs OSM por categoría (slug de `CERCANIA_KEYS`) → `[{"lat","lon"}]`.
+
+    Lee `poi_valle_aburra.json` (E09·S7). Devuelve `{}` si el archivo aún no existe (CORE sin
+    fuentes en vivo: el backfill solo calcula `metro` con la semilla).
+    """
+    if not os.path.exists(os.path.join(_DATA_DIR, DATA_POI_FILE)):
+        return {}
+    por_cat: dict[str, list[dict]] = {}
+    for p in _leer_json(DATA_POI_FILE).get("pois", []):
+        por_cat.setdefault(p["categoria"], []).append({COORD_LAT_KEY: p["lat"], COORD_LON_KEY: p["lon"]})
+    return por_cat

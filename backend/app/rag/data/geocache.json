@@ -1,0 +1,278 @@
+{
+  "_meta": {
+    "fuente": "Nominatim / OpenStreetMap",
+    "convencion_coords": "lat/lon",
+    "clave": "clave_geocache(zona, ciudad)",
+    "n": 38,
+    "precision": "centroide de barrio/municipio (cientos de m a ~1-2 km)",
+    "generado_por": "scripts/build_geocache.py (E09·T09.7.3)"
+  },
+  "geocache": {
+    "alto de las palmas|envigado": {
+      "lat": 6.15328,
+      "lon": -75.534428,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Alto De Las Palmas, Envigado, Antioquia, Colombia"
+    },
+    "apartado|apartado": {
+      "lat": 7.884901,
+      "lon": -76.622746,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "Apartadó, Apartadó, Antioquia, Colombia"
+    },
+    "belen malibu|medellin": {
+      "lat": 6.269732,
+      "lon": -75.60256,
+      "granularidad": "municipio",
+      "valle_aburra": true,
+      "query": "Medellín, Antioquia, Colombia"
+    },
+    "belen|medellin": {
+      "lat": 6.225876,
+      "lon": -75.600494,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Belén, Medellín, Antioquia, Colombia"
+    },
+    "calasanz|medellin": {
+      "lat": 6.26214,
+      "lon": -75.599209,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Calasanz, Medellín, Antioquia, Colombia"
+    },
+    "cartagena|cartagena de indias": {
+      "lat": 10.341718,
+      "lon": -75.527748,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "Cartagena, Cartagena de Indias, Bolívar, Colombia"
+    },
+    "castropol|medellin": {
+      "lat": 6.218946,
+      "lon": -75.567782,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Castropol, Medellín, Antioquia, Colombia"
+    },
+    "ciudad del rio|medellin": {
+      "lat": 6.225037,
+      "lon": -75.574604,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Ciudad Del Río, Medellín, Antioquia, Colombia"
+    },
+    "covenas|covenas": {
+      "lat": 9.401758,
+      "lon": -75.678702,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "Coveñas, Coveñas, Sucre, Colombia"
+    },
+    "el poblado - milla de oro|medellin": {
+      "lat": 6.269732,
+      "lon": -75.60256,
+      "granularidad": "municipio",
+      "valle_aburra": true,
+      "query": "Medellín, Antioquia, Colombia"
+    },
+    "el retiro|el retiro": {
+      "lat": 6.371773,
+      "lon": -75.744884,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "El Retiro, El Retiro, Antioquia, Colombia"
+    },
+    "el tesoro|medellin": {
+      "lat": 6.202913,
+      "lon": -75.556253,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "El Tesoro, Medellín, Antioquia, Colombia"
+    },
+    "envigado benedictinos|medellin": {
+      "lat": 6.269732,
+      "lon": -75.60256,
+      "granularidad": "municipio",
+      "valle_aburra": true,
+      "query": "Medellín, Antioquia, Colombia"
+    },
+    "envigado|envigado": {
+      "lat": 6.174706,
+      "lon": -75.59705,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Envigado, Envigado, Antioquia, Colombia"
+    },
+    "escobero|envigado": {
+      "lat": 6.14321,
+      "lon": -75.524729,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Escobero, Envigado, Antioquia, Colombia"
+    },
+    "esmeraldal|envigado": {
+      "lat": 6.17561,
+      "lon": -75.575073,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Esmeraldal, Envigado, Antioquia, Colombia"
+    },
+    "girardota|girardota": {
+      "lat": 6.377381,
+      "lon": -75.445976,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Girardota, Girardota, Antioquia, Colombia"
+    },
+    "guatape|guatape": {
+      "lat": 6.219349,
+      "lon": -75.17944,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "Guatape, Guatapé, Antioquia, Colombia"
+    },
+    "jardin|jardin": {
+      "lat": 5.59905,
+      "lon": -75.819183,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "Jardín, Jardín, Antioquia, Colombia"
+    },
+    "la calera|medellin": {
+      "lat": 6.200457,
+      "lon": -75.555065,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "La Calera, Medellín, Antioquia, Colombia"
+    },
+    "la ceja|la ceja": {
+      "lat": 6.030678,
+      "lon": -75.431726,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "La Ceja, La Ceja, Antioquia, Colombia"
+    },
+    "la mina|envigado": {
+      "lat": 6.159349,
+      "lon": -75.58275,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "La Mina, Envigado, Antioquia, Colombia"
+    },
+    "la sebastiana|envigado": {
+      "lat": 6.166905,
+      "lon": -75.57418,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "La Sebastiana, Envigado, Antioquia, Colombia"
+    },
+    "las brujas|envigado": {
+      "lat": 6.163775,
+      "lon": -75.580369,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Las Brujas, Envigado, Antioquia, Colombia"
+    },
+    "las palmas|envigado": {
+      "lat": 6.148808,
+      "lon": -75.534459,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Las Palmas, Envigado, Antioquia, Colombia"
+    },
+    "las palmas|medellin": {
+      "lat": 6.176989,
+      "lon": -75.535723,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Las Palmas, Medellín, Antioquia, Colombia"
+    },
+    "laureles|medellin": {
+      "lat": 6.242,
+      "lon": -75.595833,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Laureles, Medellín, Antioquia, Colombia"
+    },
+    "llanogrande|rionegro": {
+      "lat": 6.126534,
+      "lon": -75.41752,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Llanogrande, Rionegro, Antioquia, Colombia"
+    },
+    "obrero|apartado": {
+      "lat": 7.885625,
+      "lon": -76.626866,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "Obrero, Apartadó, Antioquia, Colombia"
+    },
+    "poblado campestre|medellin": {
+      "lat": 6.269732,
+      "lon": -75.60256,
+      "granularidad": "municipio",
+      "valle_aburra": true,
+      "query": "Medellín, Antioquia, Colombia"
+    },
+    "poblado|medellin": {
+      "lat": 6.211997,
+      "lon": -75.578121,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Poblado, Medellín, Antioquia, Colombia"
+    },
+    "rionegro sector san antonio|rionegro": {
+      "lat": 6.153617,
+      "lon": -75.374169,
+      "granularidad": "municipio",
+      "valle_aburra": true,
+      "query": "Rionegro, Antioquia, Colombia"
+    },
+    "sajonia|rionegro": {
+      "lat": 6.177193,
+      "lon": -75.451609,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "Sajonia, Rionegro, Antioquia, Colombia"
+    },
+    "san antonio de pereira|rionegro": {
+      "lat": 6.130047,
+      "lon": -75.380249,
+      "granularidad": "barrio",
+      "valle_aburra": true,
+      "query": "San Antonio De Pereira, Rionegro, Antioquia, Colombia"
+    },
+    "san jeronimo|san jeronimo": {
+      "lat": 6.444155,
+      "lon": -75.730489,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "San Jerónimo, San Jerónimo, Antioquia, Colombia"
+    },
+    "santa fe de antioquia|santa fe de antioquia": {
+      "lat": 6.556401,
+      "lon": -75.827775,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "Santa Fe De Antioquia, Santa Fe de Antioquia, Antioquia, Colombia"
+    },
+    "sopetran|sopetran": {
+      "lat": 6.500958,
+      "lon": -75.742498,
+      "granularidad": "barrio",
+      "valle_aburra": false,
+      "query": "Sopetran, Sopetran, Antioquia, Colombia"
+    },
+    "tres esquinas|sabaneta": {
+      "lat": 6.151534,
+      "lon": -75.615371,
+      "granularidad": "municipio",
+      "valle_aburra": true,
+      "query": "Sabaneta, Antioquia, Colombia"
+    }
+  }
+}

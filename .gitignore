@@ -30,6 +30,9 @@ pnpm-debug.log*
 # Almacén vectorial persistente de Chroma (se regenera con la ingesta)
 chroma_store/
 
+# Respuesta cruda de Overpass cacheada por scripts/build_poi.py (E09·S7); se regenera
+backend/app/rag/data/_overpass_raw.json
+
 # ──────────────────────────── OS / editores ─────────────────────────────
 .DS_Store
 Thumbs.db
