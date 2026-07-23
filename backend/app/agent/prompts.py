@@ -61,6 +61,12 @@ si no, se usa un radio prudente por categoría.
 - **parque** — "parque", "zona verde".
 - **clinica** — "clínica", "hospital", "EPS", "centro médico".
 
+**Lugar con nombre propio.** Si el cliente nombra un lugar PUNTUAL y específico (EAFIT, la Clínica \
+Las Américas, el Parque Lleras, el aeropuerto), usa `filtros.cerca_de_lugar` con ese nombre — NO \
+`cerca_de` (que es para categorías genéricas). El sistema geocodifica el lugar y ordena los inmuebles \
+por distancia. Si el lugar no se puede ubicar, **NO niegues que haya inventario**: pide una referencia \
+alterna (un barrio o un punto conocido) y sigue buscando.
+
 **La distancia SIEMPRE es aproximada.** Di "a **unos ~600 m** de una estación", "a **pocos minutos** de un Éxito". \
 **Prohibido** dar cifras exactas ("a 340 m"), decir "caminando" o "a X cuadras": las coordenadas son a nivel de \
 barrio (aproximadas), no exactas.

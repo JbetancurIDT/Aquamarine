@@ -2,16 +2,19 @@
 """Seed de demo — E07: dataset realista con inmuebles reales de Chroma, asesores dinámicos
 y conversaciones completas incluyendo takeover humano.
 
-Distribución (22 leads):
-  Estado:      3 nuevo · 5 contactado · 6 calificado · 4 negociando · 2 cerrado_ganado · 2 cerrado_perdido
-  Temperatura: 6 caliente · 7 tibio · 7 frio · 2 desconocido
-  Idioma:      20 español · 2 inglés (extranjeros interesados en Cartagena y Milla de Oro)
+Distribución (25 leads — incluye 3 de demostración de cercanía E09):
+  Estado:      5 nuevo · 6 contactado · 6 calificado · 4 negociando · 2 cerrado_ganado · 2 cerrado_perdido
+  Temperatura: 7 caliente · 8 tibio · 8 frio · 2 desconocido
+  Idioma:      23 español · 2 inglés (extranjeros interesados en Cartagena y Milla de Oro)
 
 Funnel (cerrado_perdido → rank 2, igual que calificado, para no inflar el abandono):
-  22 → 19 → 14 → 6 → 2
-  paso previo: — / 86.4% / 73.7% / 42.9% / 33.3%
-  lead → cita:        63.6%  (14/22)
+  25 → 20 → 14 → 6 → 2
+  paso previo: — / 80.0% / 70.0% / 42.9% / 33.3%
+  lead → cita:        56.0%  (14/25)
   cita → negociación: 42.9%   (6/14)
+
+Demo de cercanía (E09): 3 leads que ejercitan "cerca del metro"/D1, "cerca de EAFIT/Clínica Las
+Américas", y el intercambio honesto "en Guatapé no hay metro" (ver _CERCANIA_DEMO).
 
 Asesores: consulta dinámicamente los del tenant (Valentina Ruiz, Juana Páez, Mateo Ángel).
           Si no existen, los crea. Los pone disponible=True. Reparte asignados en round-robin.
@@ -153,7 +156,43 @@ LEADS_SPEC = [
      "David Soto",        "Sabaneta",            "Medellín",  "apartamento"),
     ("frio",     "cerrado_perdido","web",           1_000_000_000, None,       "es",
      "Gabriela Díaz",     "Itagüí",              "Medellín",  "casa"),
+    # ── Demostración de cercanía (E09) — mensajes custom vía _CERCANIA_DEMO ──
+    ("caliente", "contactado",     "web",           1_180_000_000, "9907677",  "es",
+     "Cristina Vélez",    "Patio Bonito",        "Medellín",  "apartamento"),
+    ("tibio",    "nuevo",          "meta",          4_500_000_000, "9718612",  "es",
+     "Ricardo Salazar",   "El Poblado",          "Medellín",  "apartamento lujo"),
+    ("frio",     "nuevo",          "web",           2_200_000_000, None,       "es",
+     "Paola Restrepo",    "Guatapé",             "Antioquia", "finca"),
 ]
+
+# Mensajes custom para los 3 leads de demostración de cercanía (E09): el lead pide proximidad en
+# lenguaje natural y Aqua responde con distancia APROXIMADA y honestidad geográfica.
+_CERCANIA_DEMO = {
+    "Cristina Vélez": {
+        "lead": ("Hola, busco apartamento en Medellín que quede **cerca de una estación del metro** "
+                 "y ojalá con un **D1 cerquita**. Hasta $1.180 millones."),
+        "ia": ("¡Claro que sí! Tengo justo algo así: **Apartamento en Patio Bonito, El Poblado** — a "
+               "**unos ~600 m de una estación de metro** y con supermercados (incluido un D1) muy "
+               "cerca. ¿Te gustaría agendar una visita? 😊"),
+        "inmuebles": ["9907677"],
+    },
+    "Ricardo Salazar": {
+        "lead": ("Buenas, me interesa algo en El Poblado pero que esté **cerca de EAFIT** o de la "
+                 "**Clínica Las Américas**. El presupuesto es amplio."),
+        "ia": ("¡Perfecto! Mira este **Apartamento de lujo en El Poblado** — queda a **~1.5 km de "
+               "EAFIT (aprox.)** y con la zona médica bien cerca. Es de nuestras propiedades más "
+               "exclusivas. ¿Te muestro más detalles?"),
+        "inmuebles": ["9718612"],
+    },
+    "Paola Restrepo": {
+        "lead": ("Quiero una finca en **Guatapé** pero que quede **cerca del metro**, ¿tienen algo así?"),
+        "ia": ("¡Qué lindo Guatapé! Te soy honesta: **el metro no llega a Guatapé** — el sistema solo "
+               "cubre el **Valle de Aburrá** (Medellín y su área). En Guatapé puedo ayudarte con "
+               "opciones cerca del lago o el parque; y si te sirve el área metropolitana, ahí sí hay "
+               "inmuebles junto al metro. ¿Qué prefieres?"),
+        "inmuebles": [],
+    },
+}
 
 # Mensajes iniciales por idioma
 _SALUDO_LEAD = {
@@ -373,12 +412,17 @@ def seed() -> None:
                           payload={"origen": origen}, creado_en=ts))
 
             # ── Mensaje inicial del lead + respuesta IA (30 s) ────────────
-            saludo_lead = _SALUDO_LEAD[idioma].format(
+            demo_geo = _CERCANIA_DEMO.get(nombre)
+            saludo_lead = demo_geo["lead"] if demo_geo else _SALUDO_LEAD[idioma].format(
                 ciudad=ciudad, zona=zona, budget=_precio_str(budget)
             )
             db.add(Mensaje(lead_id=lead.id, rol="lead", contenido=saludo_lead, creado_en=ts))
 
-            if inm_id and inm:
+            if demo_geo:
+                db.add(Mensaje(lead_id=lead.id, rol="agente", contenido=demo_geo["ia"],
+                               creado_en=ts + timedelta(seconds=30),
+                               meta={"inmuebles": demo_geo.get("inmuebles", [])}))
+            elif inm_id and inm:
                 rec_texto, rec_ids = _msg_recomendacion(inm, inm_id, idioma)
                 db.add(Mensaje(lead_id=lead.id, rol="agente", contenido=rec_texto,
                                creado_en=ts + timedelta(seconds=30),

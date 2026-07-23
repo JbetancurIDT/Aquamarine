@@ -35,6 +35,16 @@ class Settings(BaseSettings):
     ANTHROPIC_EXTRACTION_MODEL: str = "claude-haiku-4-5"
     FIRECRAWL_API_KEY: str = ""
 
+    # ── Geo / búsqueda por proximidad (E09) ──────────────────────────────────
+    # Fuentes en vivo (STRETCH). Nominatim se usa en caliente SOLO para el fallback por nombre
+    # propio (cacheado); Overpass/GTFS son offline (scripts build_*). Radio default del fallback.
+    NOMINATIM_URL: str = "https://nominatim.openstreetmap.org/search"
+    NOMINATIM_USER_AGENT: str = "Aquamarine/1.0 (E09 geo; contacto: dev@aquamarine.example)"
+    OVERPASS_URL: str = "https://overpass-api.de/api/interpreter"
+    METRO_GTFS_URL: str = ("https://raw.githubusercontent.com/ColombiaInfo/ColombiaGTFS/master/"
+                           "Medellin%20-%20Metro/stops.txt")
+    GEO_DEFAULT_RADIO_KM: float = 3.0
+
     # Entorno de ejecución: development | staging | production.
     ENVIRONMENT: str = "development"
 

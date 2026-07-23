@@ -7,7 +7,7 @@ que reusa `app.rag.search`. Soporta dos rutas:
 """
 
 from app.rag.geo_const import CERCANIA_KEYS, ETIQUETA_CAT
-from app.rag.search import buscar_inmuebles, obtener_inmueble_por_codigo
+from app.rag.search import buscar_inmuebles, buscar_por_lugar, obtener_inmueble_por_codigo
 
 # Schema de la tool para Claude. La descripción es PRESCRIPTIVA: dice CUÁNDO usarla.
 BUSCAR_INMUEBLES_TOOL = {
@@ -71,9 +71,19 @@ BUSCAR_INMUEBLES_TOOL = {
                     "radio_km": {
                         "type": "number",
                         "description": (
-                            "Radio máximo de cercanía en km (opcional; acompaña a `cerca_de`). Si no lo "
-                            "das, se usa un radio prudente por categoría. Solo puede AMPLIAR: hay un piso "
-                            "honesto de 1.5 km porque las coordenadas son a nivel de barrio."
+                            "Radio máximo de cercanía en km (opcional; acompaña a `cerca_de` o "
+                            "`cerca_de_lugar`). Si no lo das, se usa un radio prudente. Con `cerca_de` "
+                            "solo puede AMPLIAR (piso honesto de 1.5 km, coords a nivel de barrio)."
+                        ),
+                    },
+                    "cerca_de_lugar": {
+                        "type": "string",
+                        "description": (
+                            "Lugar con NOMBRE PROPIO al que el cliente quiere estar cerca: un punto de "
+                            "interés específico ('EAFIT', 'Clínica Las Américas', 'Parque Lleras', "
+                            "'Aeropuerto JMC'). Se geocodifica y se rankea el inventario por distancia. "
+                            "EXCLUYENTE con `cerca_de`: usa `cerca_de` para CATEGORÍAS (un metro, un "
+                            "supermercado) y `cerca_de_lugar` para un lugar puntual con nombre propio."
                         ),
                     },
                 },
@@ -128,6 +138,30 @@ def _formatear_linea(inm: dict, numero: int, cat: str | None = None) -> str:
     )
 
 
+def _handler_por_lugar(lugar: str, filtros: dict) -> tuple[str, list[dict]]:
+    """Fallback por nombre propio (E09·T09.8.2): geocodifica el lugar y rankea por cercanía.
+    Cada `estado` produce un texto honesto (lugar no ubicado → pedir referencia, NO negar inventario).
+    """
+    res = buscar_por_lugar(lugar, filtros, k=3, radio_km=filtros.get("radio_km"))
+    if res["estado"] == "lugar_no_encontrado":
+        return (
+            f"No pude ubicar “{lugar}” en el mapa. NO niegues que haya inventario: pídele al cliente "
+            f"una referencia alterna (un barrio, un punto conocido o el nombre completo) y sigue "
+            f"buscando por él.",
+            [],
+        )
+    inmuebles = res["resultados"]
+    if not inmuebles:  # sin_coords, o nada dentro del radio pedido
+        return (
+            f"Ubiqué “{lugar}”, pero no tengo inmuebles con ubicación para medir cercanía ahí. "
+            f"NO afirmes que no hay nada: ofrece buscar por zona/barrio o ampliar la distancia.",
+            [],
+        )
+    encabezado = f"Estos son los inmuebles más cercanos a “{lugar}”, con la distancia aproximada:"
+    lineas = [_formatear_linea(inm, i) for i, inm in enumerate(inmuebles, 1)]
+    return (encabezado + "\n" + "\n".join(lineas), inmuebles)
+
+
 def ejecutar_buscar_inmuebles(args: dict) -> tuple[str, list[dict]]:
     """Ejecuta la búsqueda RAG. Devuelve (texto_para_claude, inmuebles_crudos).
 
@@ -148,9 +182,14 @@ def ejecutar_buscar_inmuebles(args: dict) -> tuple[str, list[dict]]:
             )
         return (_formatear_linea(inm, 1), [inm])
 
+    # Routing: codigo > cerca_de_lugar > cerca_de > query/filtros.
+    filtros = args.get("filtros") or None
+    lugar = ((filtros or {}).get("cerca_de_lugar") or "").strip()
+    if lugar:
+        return _handler_por_lugar(lugar, filtros or {})
+
     # Camino semántico tolerante (over-fetch + relax-and-retry dentro de buscar_inmuebles).
     query = args.get("query") or ""
-    filtros = args.get("filtros") or None
     cat = (filtros or {}).get("cerca_de")  # categoría de cercanía pedida (o None)
     inmuebles = buscar_inmuebles(query, filtros, k=3)
 

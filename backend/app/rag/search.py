@@ -291,6 +291,64 @@ def buscar_inmuebles(query: str, filtros: dict | None = None, k: int = 5) -> lis
     return resultados[:k]
 
 
+def _aprox_dist(m: float) -> str:
+    """Distancia aproximada legible: "~700 m" (<1 km) o "~1.8 km" (≥1 km). Nunca cifra exacta."""
+    return f"~{max(100, round(m / 100) * 100)} m" if m < 1000 else f"~{m / 1000:.1f} km"
+
+
+def buscar_por_lugar(nombre: str, filtros: dict | None = None, k: int = 3,
+                     radio_km: float | None = None) -> dict:
+    """Rankea el inventario por cercanía (haversine) a un LUGAR con nombre propio (E09·T09.8.2).
+
+    Geocodifica `nombre` **una vez** (`geo.geocode_vivo`, inyectable/cacheado), trae los inmuebles
+    que cumplen los filtros numéricos duros (`col.get` + `_where_duro`: respeta precio/habitaciones),
+    **excluye y CUENTA** los que no tienen coords, ordena por distancia ascendente y marca cada
+    resultado `coincidencia="cercana"` + `motivo="a ~X de <lugar> (aprox.)"`.
+
+    Devuelve `{estado, punto, resultados, descartados_sin_coords}` con
+    `estado ∈ {ok, lugar_no_encontrado, sin_coords}`. No relaja nada (ancla espacial explícita).
+    """
+    from app.rag import geo
+    filtros = filtros or {}
+    punto = geo.geocode_vivo(nombre)
+    if punto is None:
+        return {"estado": "lugar_no_encontrado", "punto": None, "resultados": [], "descartados_sin_coords": 0}
+    lat0, lon0 = punto
+
+    # `cerca_de` (categoría) es EXCLUYENTE con la búsqueda por lugar: se ignora para no inyectar
+    # un filtro de categoría en el `where` (solo quedan los numéricos duros: precio/habitaciones).
+    filtros_duros = {k: v for k, v in filtros.items() if k != "cerca_de"}
+    col = get_chroma_client().get_or_create_collection(COLLECTION_NAME)
+    res = col.get(where=_where_duro(filtros_duros, settings.DEFAULT_TENANT_ID), include=["metadatas"])
+    metas = res.get("metadatas") or []
+
+    con_dist: list[tuple[float, dict]] = []
+    sin_coords = 0
+    for m in metas:
+        la, lo = m.get("latitud"), m.get("longitud")
+        if la is None or lo is None:
+            sin_coords += 1
+            continue
+        con_dist.append((geo.haversine_m(lat0, lon0, la, lo), m))
+
+    if not con_dist:
+        return {"estado": "sin_coords", "punto": punto, "resultados": [], "descartados_sin_coords": sin_coords}
+
+    con_dist.sort(key=lambda t: t[0])
+    rad_m = radio_km * 1000 if radio_km else None
+    resultados: list[dict] = []
+    for d, m in con_dist:
+        if rad_m is not None and d > rad_m:  # ordenados asc → los siguientes también exceden
+            break
+        item = _formatear_meta(m)
+        item["coincidencia"] = "cercana"
+        item["motivo"] = f"a {_aprox_dist(d)} de {nombre} (aprox.)"
+        resultados.append(item)
+        if len(resultados) >= k:
+            break
+    return {"estado": "ok", "punto": punto, "resultados": resultados, "descartados_sin_coords": sin_coords}
+
+
 def obtener_inmueble_por_codigo(codigo: str) -> dict | None:
     """Lookup exacto por código (document id en Chroma). Respeta tenant_id. Sin embedding."""
     codigo = str(codigo).strip()
