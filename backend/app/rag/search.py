@@ -24,11 +24,22 @@ import unicodedata
 
 from app.core.config import settings
 from app.rag.chroma_client import COLLECTION_NAME, get_chroma_client
+from app.rag.geo_const import CERCANIA_KEYS
 
 # Cuántos candidatos pedir a Chroma antes de post-filtrar y rankear.
 _OVERFETCH = 20
 # Ensanche relativo del precio en el último nivel de relajación (±15%).
 _PRICE_RELAX = 0.15
+
+# Radio default por categoría (km) cuando el lead no da `radio_km` (E09·T09.4.1).
+_RADIO_DEFAULT_KM = {
+    "metro": 1.5, "supermercado": 1.5, "parque": 1.5, "colegio": 1.5,
+    "centro_comercial": 2.5, "clinica": 2.5, "universidad": 3.0,
+}
+# Piso DURO del radio: las coords del inmueble son el centroide del barrio (error de cientos de
+# m a ~1-2 km), así que afirmar cercanía por debajo de esto sería deshonesto. `radio_km` del lead
+# solo puede ensanchar por encima de este piso, nunca reducirlo.
+_RADIO_PISO_M = 1500
 
 # Grupos de alias de tipo: dentro de un grupo los términos son intercambiables para el
 # POST-FILTRO (no para mostrar). Así "casa campestre"/"finca"/"casa de campo" no excluyen
@@ -117,6 +128,32 @@ def _cumple_ubicacion(meta: dict, lugar_pedido) -> bool:
     return any(w in blob for w in tokens)
 
 
+def _radio_m(filtros: dict, cat: str) -> int:
+    """Radio efectivo en metros para la categoría `cat`.
+
+    Usa `radio_km` del lead si lo dio; si no, el default por categoría. **Nunca baja del piso
+    honesto** (`_RADIO_PISO_M`): un `radio_km` menor solo se eleva al piso, uno mayor ensancha.
+    """
+    f = filtros or {}
+    rk = f.get("radio_km")
+    km = float(rk) if rk is not None else _RADIO_DEFAULT_KM.get(cat, 2.0)
+    return max(_RADIO_PISO_M, int(round(km * 1000)))
+
+
+def _cercania_cond(filtros: dict) -> dict | None:
+    """Condición de cercanía para el `where`: `{"dist_<cat>_m": {"$lte": radio_m}}` o None.
+
+    None si no se pidió `cerca_de` o la categoría no está soportada. **Filtro DURO:** un inmueble
+    SIN la clave `dist_<cat>_m` (municipio sin metro, sin coords) NO matchea por la semántica de
+    `$lte` → honestidad gratis, sin código extra.
+    """
+    f = filtros or {}
+    cat = f.get("cerca_de")
+    if not cat or cat not in CERCANIA_KEYS:
+        return None
+    return {CERCANIA_KEYS[cat]: {"$lte": _radio_m(f, cat)}}
+
+
 def _where_duro(filtros: dict, tenant_id: str) -> dict:
     """`where` de Chroma SOLO con filtros numéricos/confiables (sin tipo/zona/ciudad como $eq)."""
     cond = [{"tenant_id": {"$eq": tenant_id}}]
@@ -133,6 +170,11 @@ def _where_duro(filtros: dict, tenant_id: str) -> dict:
         cond.append({"banos": {"$gte": int(f["banos"])}})
     if f.get("es_lujo") is not None:
         cond.append({"es_lujo": {"$eq": bool(f["es_lujo"])}})
+    # Cercanía (E09): requisito espacial DURO. Va en el `where` junto a tenant_id/precio y por eso
+    # se aplica en TODOS los niveles de relajación (nunca se relaja como zona/tipo/precio).
+    cercania = _cercania_cond(f)
+    if cercania:
+        cond.append(cercania)
     return cond[0] if len(cond) == 1 else {"$and": cond}
 
 
