@@ -16,6 +16,8 @@ import json
 
 from pydantic import BaseModel, Field
 
+from app.rag.geo_const import CERCANIA_KEYS
+
 
 class InmuebleIn(BaseModel):
     # --- Identidad / fijos ---
@@ -67,6 +69,15 @@ class InmuebleIn(BaseModel):
     # --- Geo ---
     latitud: float | None = None
     longitud: float | None = None
+    # Distancias precalculadas (m) al POI más cercano por categoría (E09). Nombres = valores
+    # de geo_const.CERCANIA_KEYS. Metadata plana: si es None, la property `metadata` la omite.
+    dist_metro_m: int | None = None
+    dist_super_m: int | None = None
+    dist_mall_m: int | None = None
+    dist_colegio_m: int | None = None
+    dist_universidad_m: int | None = None
+    dist_parque_m: int | None = None
+    dist_clinica_m: int | None = None
 
     # --- Procedencia ---
     url_fuente: str
@@ -127,5 +138,10 @@ class InmuebleIn(BaseModel):
             "url_fuente": self.url_fuente,
             "fuente": self.fuente,
         }
+        # Distancias geo (E09): se añaden por su nombre canónico en CERCANIA_KEYS (fuente única
+        # de verdad; cero strings de clave a mano). Las que sigan en None las descarta la
+        # comprensión de abajo, igual que el resto → metadata plana sin nulos.
+        for _clave in CERCANIA_KEYS.values():
+            bruto[_clave] = getattr(self, _clave)
         # Chroma no acepta None en metadata → se omiten esas claves.
         return {clave: valor for clave, valor in bruto.items() if valor is not None}

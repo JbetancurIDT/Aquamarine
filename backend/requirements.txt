@@ -6,7 +6,10 @@ pydantic-settings
 sqlalchemy
 alembic
 psycopg2-binary
-chromadb
+# chromadb PINNEADO (E09·T09.3.4): el backfill de seed_geo depende de que col.update haga
+# MERGE (claves omitidas se conservan; valor None elimina la clave). Verificado en 1.5.9;
+# fijar la versión hace ese comportamiento reproducible entre entornos.
+chromadb==1.5.9
 python-dotenv
 anthropic
 httpx

@@ -1,0 +1,255 @@
+{
+  "_meta": {
+    "fuente": "Metro de Medellín — coords públicas aproximadas (semilla E09·S2; regenerable desde GTFS oficial en E09·S7/T09.7.1)",
+    "convencion_coords": "lat/lon",
+    "n": 41
+  },
+  "estaciones": [
+    {
+      "nombre": "Acevedo",
+      "linea": "A",
+      "lat": 6.2999,
+      "lon": -75.5586
+    },
+    {
+      "nombre": "Aguacatala",
+      "linea": "A",
+      "lat": 6.1937,
+      "lon": -75.5814
+    },
+    {
+      "nombre": "Alejandro Echavarría",
+      "linea": "Tranvía",
+      "lat": 6.2384,
+      "lon": -75.5417
+    },
+    {
+      "nombre": "Alpujarra",
+      "linea": "A",
+      "lat": 6.2422,
+      "lon": -75.5714
+    },
+    {
+      "nombre": "Andalucía",
+      "linea": "K",
+      "lat": 6.2962,
+      "lon": -75.554
+    },
+    {
+      "nombre": "Ayurá",
+      "linea": "A",
+      "lat": 6.1834,
+      "lon": -75.5875
+    },
+    {
+      "nombre": "Bello",
+      "linea": "A",
+      "lat": 6.33,
+      "lon": -75.5537
+    },
+    {
+      "nombre": "Bicentenario",
+      "linea": "Tranvía",
+      "lat": 6.244,
+      "lon": -75.556
+    },
+    {
+      "nombre": "Buenos Aires",
+      "linea": "Tranvía",
+      "lat": 6.2419,
+      "lon": -75.5541
+    },
+    {
+      "nombre": "Caribe",
+      "linea": "A",
+      "lat": 6.2785,
+      "lon": -75.5697
+    },
+    {
+      "nombre": "Cisneros",
+      "linea": "B",
+      "lat": 6.249,
+      "lon": -75.5747
+    },
+    {
+      "nombre": "Envigado",
+      "linea": "A",
+      "lat": 6.174,
+      "lon": -75.5928
+    },
+    {
+      "nombre": "Estadio",
+      "linea": "B",
+      "lat": 6.254,
+      "lon": -75.59
+    },
+    {
+      "nombre": "Exposiciones",
+      "linea": "A",
+      "lat": 6.2384,
+      "lon": -75.573
+    },
+    {
+      "nombre": "Floresta",
+      "linea": "B",
+      "lat": 6.2593,
+      "lon": -75.5993
+    },
+    {
+      "nombre": "Hospital",
+      "linea": "A",
+      "lat": 6.2637,
+      "lon": -75.5619
+    },
+    {
+      "nombre": "Industriales",
+      "linea": "A",
+      "lat": 6.2302,
+      "lon": -75.5749
+    },
+    {
+      "nombre": "Itagüí",
+      "linea": "A",
+      "lat": 6.1637,
+      "lon": -75.599
+    },
+    {
+      "nombre": "Juan XXIII",
+      "linea": "J",
+      "lat": 6.2591,
+      "lon": -75.618
+    },
+    {
+      "nombre": "La Aurora",
+      "linea": "J",
+      "lat": 6.2762,
+      "lon": -75.625
+    },
+    {
+      "nombre": "La Estrella",
+      "linea": "A",
+      "lat": 6.1527,
+      "lon": -75.6273
+    },
+    {
+      "nombre": "Loyola",
+      "linea": "Tranvía",
+      "lat": 6.2405,
+      "lon": -75.5455
+    },
+    {
+      "nombre": "Madera",
+      "linea": "A",
+      "lat": 6.3157,
+      "lon": -75.5586
+    },
+    {
+      "nombre": "Miraflores",
+      "linea": "Tranvía",
+      "lat": 6.24,
+      "lon": -75.549
+    },
+    {
+      "nombre": "Niquía",
+      "linea": "A",
+      "lat": 6.3382,
+      "lon": -75.5449
+    },
+    {
+      "nombre": "Oriente",
+      "linea": "Tranvía",
+      "lat": 6.2362,
+      "lon": -75.5373
+    },
+    {
+      "nombre": "Pabellón del Agua EPM",
+      "linea": "Tranvía",
+      "lat": 6.2451,
+      "lon": -75.5583
+    },
+    {
+      "nombre": "Parque Berrío",
+      "linea": "A",
+      "lat": 6.2503,
+      "lon": -75.5681
+    },
+    {
+      "nombre": "Poblado",
+      "linea": "A",
+      "lat": 6.2124,
+      "lon": -75.5779
+    },
+    {
+      "nombre": "Popular",
+      "linea": "K",
+      "lat": 6.2948,
+      "lon": -75.5493
+    },
+    {
+      "nombre": "Prado",
+      "linea": "A",
+      "lat": 6.2561,
+      "lon": -75.5657
+    },
+    {
+      "nombre": "Sabaneta",
+      "linea": "A",
+      "lat": 6.1573,
+      "lon": -75.6116
+    },
+    {
+      "nombre": "San Antonio",
+      "linea": "A",
+      "lat": 6.247,
+      "lon": -75.5688
+    },
+    {
+      "nombre": "San Javier",
+      "linea": "B",
+      "lat": 6.2565,
+      "lon": -75.6134
+    },
+    {
+      "nombre": "San José",
+      "linea": "Tranvía",
+      "lat": 6.2469,
+      "lon": -75.5645
+    },
+    {
+      "nombre": "Santa Lucía",
+      "linea": "B",
+      "lat": 6.2612,
+      "lon": -75.6062
+    },
+    {
+      "nombre": "Santo Domingo",
+      "linea": "K",
+      "lat": 6.2927,
+      "lon": -75.5432
+    },
+    {
+      "nombre": "Suramericana",
+      "linea": "B",
+      "lat": 6.2535,
+      "lon": -75.583
+    },
+    {
+      "nombre": "Tricentenario",
+      "linea": "A",
+      "lat": 6.2903,
+      "lon": -75.5637
+    },
+    {
+      "nombre": "Universidad",
+      "linea": "A",
+      "lat": 6.2693,
+      "lon": -75.5654
+    },
+    {
+      "nombre": "Vallejuelos",
+      "linea": "J",
+      "lat": 6.2668,
+      "lon": -75.6216
+    }
+  ]
+}

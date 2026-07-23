@@ -1,0 +1,201 @@
+{
+  "_meta": {
+    "fuente": "Centroides de barrio/municipio (semilla E09·S2; regenerable con Nominatim en E09·S7/T09.7.3). Precisión = centroide administrativo (cientos de m a ~1-2 km).",
+    "convencion_coords": "lat/lon",
+    "clave": "clave_geocache(zona, ciudad) — normalizada, sin acentos ni casing",
+    "metro": "True solo si el municipio tiene sistema Metro (Valle de Aburrá)",
+    "n": 38
+  },
+  "centroides": {
+    "alto de las palmas|envigado": {
+      "lat": 6.18,
+      "lon": -75.545,
+      "metro": true
+    },
+    "apartado|apartado": {
+      "lat": 7.883,
+      "lon": -76.628,
+      "metro": false
+    },
+    "belen malibu|medellin": {
+      "lat": 6.229,
+      "lon": -75.61,
+      "metro": true
+    },
+    "belen|medellin": {
+      "lat": 6.233,
+      "lon": -75.606,
+      "metro": true
+    },
+    "calasanz|medellin": {
+      "lat": 6.262,
+      "lon": -75.611,
+      "metro": true
+    },
+    "cartagena|cartagena de indias": {
+      "lat": 10.399,
+      "lon": -75.514,
+      "metro": false
+    },
+    "castropol|medellin": {
+      "lat": 6.2115,
+      "lon": -75.569,
+      "metro": true
+    },
+    "ciudad del rio|medellin": {
+      "lat": 6.222,
+      "lon": -75.573,
+      "metro": true
+    },
+    "covenas|covenas": {
+      "lat": 9.406,
+      "lon": -75.68,
+      "metro": false
+    },
+    "el poblado - milla de oro|medellin": {
+      "lat": 6.1985,
+      "lon": -75.565,
+      "metro": true
+    },
+    "el retiro|el retiro": {
+      "lat": 6.062,
+      "lon": -75.502,
+      "metro": false
+    },
+    "el tesoro|medellin": {
+      "lat": 6.196,
+      "lon": -75.5585,
+      "metro": true
+    },
+    "envigado benedictinos|medellin": {
+      "lat": 6.178,
+      "lon": -75.585,
+      "metro": true
+    },
+    "envigado|envigado": {
+      "lat": 6.169,
+      "lon": -75.582,
+      "metro": true
+    },
+    "escobero|envigado": {
+      "lat": 6.157,
+      "lon": -75.56,
+      "metro": true
+    },
+    "esmeraldal|envigado": {
+      "lat": 6.166,
+      "lon": -75.575,
+      "metro": true
+    },
+    "girardota|girardota": {
+      "lat": 6.379,
+      "lon": -75.446,
+      "metro": false
+    },
+    "guatape|guatape": {
+      "lat": 6.233,
+      "lon": -75.159,
+      "metro": false
+    },
+    "jardin|jardin": {
+      "lat": 5.598,
+      "lon": -75.819,
+      "metro": false
+    },
+    "la calera|medellin": {
+      "lat": 6.196,
+      "lon": -75.576,
+      "metro": true
+    },
+    "la ceja|la ceja": {
+      "lat": 6.028,
+      "lon": -75.432,
+      "metro": false
+    },
+    "la mina|envigado": {
+      "lat": 6.16,
+      "lon": -75.57,
+      "metro": true
+    },
+    "la sebastiana|envigado": {
+      "lat": 6.15,
+      "lon": -75.56,
+      "metro": true
+    },
+    "las brujas|envigado": {
+      "lat": 6.155,
+      "lon": -75.565,
+      "metro": true
+    },
+    "las palmas|envigado": {
+      "lat": 6.185,
+      "lon": -75.55,
+      "metro": true
+    },
+    "las palmas|medellin": {
+      "lat": 6.202,
+      "lon": -75.548,
+      "metro": true
+    },
+    "laureles|medellin": {
+      "lat": 6.245,
+      "lon": -75.593,
+      "metro": true
+    },
+    "llanogrande|rionegro": {
+      "lat": 6.145,
+      "lon": -75.415,
+      "metro": false
+    },
+    "obrero|apartado": {
+      "lat": 7.88,
+      "lon": -76.63,
+      "metro": false
+    },
+    "poblado campestre|medellin": {
+      "lat": 6.19,
+      "lon": -75.56,
+      "metro": true
+    },
+    "poblado|medellin": {
+      "lat": 6.209,
+      "lon": -75.567,
+      "metro": true
+    },
+    "rionegro sector san antonio|rionegro": {
+      "lat": 6.155,
+      "lon": -75.374,
+      "metro": false
+    },
+    "sajonia|rionegro": {
+      "lat": 6.15,
+      "lon": -75.39,
+      "metro": false
+    },
+    "san antonio de pereira|rionegro": {
+      "lat": 6.163,
+      "lon": -75.365,
+      "metro": false
+    },
+    "san jeronimo|san jeronimo": {
+      "lat": 6.443,
+      "lon": -75.729,
+      "metro": false
+    },
+    "santa fe de antioquia|santa fe de antioquia": {
+      "lat": 6.557,
+      "lon": -75.827,
+      "metro": false
+    },
+    "sopetran|sopetran": {
+      "lat": 6.5,
+      "lon": -75.746,
+      "metro": false
+    },
+    "tres esquinas|sabaneta": {
+      "lat": 6.151,
+      "lon": -75.616,
+      "metro": true
+    }
+  }
+}
