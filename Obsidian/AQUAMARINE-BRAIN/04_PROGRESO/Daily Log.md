@@ -2,7 +2,7 @@
 tipo: log
 audiencia: ambos
 estado: en-progreso
-actualizado: 2026-06-11
+actualizado: 2026-07-22
 tags: [area/proyecto, log, progreso]
 ---
 
@@ -57,6 +57,10 @@ tags: [area/proyecto, log, progreso]
 - [E07] **Cerrada.** `seed_demo.py` rehecho realista: perfiles Medellín/Antioquia que casan con Chroma, chats con **recomendaciones de inmuebles reales** (`obtener_inmueble_por_codigo`), repartido entre los **3 asesores** (Valentina/Juana/Mateo) y disponibles para demo, con `cerrado_perdido` y casos `atendido_por_humano`. Tests e2e críticos agregados. Distribución: 3 nuevo · 5 contactado · 6 calificado · 4 negociando · 2 ganado · 2 perdido.
 - [E08] **Cerrada — MVP completo.** Burbuja **"Asistente Aquamarine"** en `/dashboard` (`AquaChat.tsx`): IA real con **Haiku + tool-use** (`app/agent/insights_agent.py` + `insights_tools.py` + `POST /insights/ask`), 4 herramientas (métricas generales, performance asesores, resumen mensual, distribución) que reusan los cálculos del dashboard. Entrada por presets (`/`) + texto libre; honesta fuera de alcance. **Las 9 épicas E00–E08 quedan cerradas → MVP listo para presentar.**
 - [docs/demo] Generados **ejemplos de presentación** (3 chats de descubrimiento + 2 redirects por código real de Meta/web + Q&A de gerencia) usando inmuebles reales de Chroma, para el guion de demo.
+
+## 2026-07-22 — Planeación E09 (Búsqueda por Proximidad Geográfica, post-MVP)
+- [planeación] **Chequeo de datos geo (read-only sobre Chroma):** de 50 inmuebles, solo 2/50 con lat/lng (una sintética) → ~0 coords reales; 3/50 con dirección; 50/50 con zona+ciudad; 48/50 en Antioquia (Medellín 19, Envigado 11, Rionegro 6, resto disperso), ~32 en el Valle de Aburrá. → la geocodificación será por **centroide de (zona,ciudad)**.
+- [E09] **Épica planeada con workflow multi-agente** (4 diseños en paralelo + revisión adversarial de factibilidad + síntesis). Decisiones: v1 = **haversine radial en km** (tiempo de viaje = Fase 2), POI **100% OSM/Overpass + GTFS del Metro**, ambos scopes (categorías fijas + fallback por nombre propio), foco Valle de Aburrá. 9 sprints (1-6 CORE ≈0.5 día, 7-9 STRETCH), radio honesto mínimo **1.5 km**, cercanía como **filtro duro** (clave ausente = no matchea = honestidad). Ver [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] y [[Decisiones (Decision Log)]] **D21**.
 
 ---
 > **Cómo usar:** al cerrar una tarea, agrega una línea aquí y marca el checkbox en su épica. Sube `actualizado` en el frontmatter.

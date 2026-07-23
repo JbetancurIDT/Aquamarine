@@ -2,7 +2,7 @@
 tipo: nota-proyecto
 audiencia: ambos
 estado: en-progreso
-actualizado: 2026-06-11
+actualizado: 2026-07-22
 tags: [area/proyecto, decisiones]
 ---
 
@@ -32,5 +32,6 @@ Registro de decisiones clave. Cada una: contexto, decisión y consecuencia. Para
 | D18 | 2026-06-11 | **Auto-asignación por menor cola + cap (balanceo)** en el handoff | Evitar sobrecargar a un asesor en hora pico; repartir según carga real | `asesor_con_menor_cola` elige entre `disponible=True` el de menos leads activos (calificado+negociando), respetando `MAX_LEADS_ACTIVOS_POR_ASESOR`; toggle `PATCH /asesores/{id}/disponibilidad` |
 | D19 | 2026-06-11 | **Motor de notificaciones escalonadas + reasignación automática** (barrido backend) | Asegurar que el asesor responda; si no, reasignar para no perder el lead | Job `sweep_loop` (lifespan FastAPI) cada `SWEEP_INTERVALO_SEG`: notifica según temperatura (caliente<tibio<frío), y tras `NOTIF_MAX_ANTES_REASIGNAR` la IA se disculpa y reasigna. Intervalos configurables (`NOTIF_SCALE` para demo) |
 | D20 | 2026-06-11 | **Métricas de propiedades = mock** (no se conecta la DB vectorial todavía) | Conectar Chroma para activas/en negociación/cerradas es costoso para el MVP; las de asesores sí son reales | `GET /metrics/propiedades` devuelve mock swappable; `GET /metrics/asesores` calcula real desde Postgres |
+| D21 | 2026-07-22 | **Búsqueda por proximidad geográfica en v1 = haversine radial en km (sin tiempo de viaje), POI 100% OSM/Overpass + GTFS del Metro, con ambos scopes (categorías fijas + fallback por nombre propio)** | El lead pide cercanía en lenguaje natural ("cerca del metro", "un D1 cerca", "cerca de la Clínica Las Américas"); haversine precalculado es instantáneo, sin costo de APIs de rutas ni PostGIS, y encaja con el patrón de filtros numéricos ya existente en Chroma. Partimos sin coords reales (2/50), así que se geocodifica por centroide de (zona,ciudad) | Nueva épica **[[E09 - Búsqueda por Proximidad Geográfica (Geo)]]**. Se enriquece el inventario con `dist_<cat>_m` (metadata plana en Chroma, se omite si no hay dato); `search.py` filtra cercanía como requisito **duro** (clave ausente = no matchea = honestidad gratis); la tool `buscar_inmuebles` gana `cerca_de`/`radio_km`. Radio mínimo honesto **1.5 km** (precisión = centroide de barrio); el metro solo cubre el Valle de Aburrá → Aqua es honesto cuando no hay. **Tiempo de viaje/isócronas (OpenRouteService), Google Places y ciudades fuera de Antioquia = Fase 2.** Doc en `geo.md` |
 
 > Para agregar una decisión nueva: añade fila, sube `actualizado`, y si afecta el build, refleja el cambio en la épica correspondiente.

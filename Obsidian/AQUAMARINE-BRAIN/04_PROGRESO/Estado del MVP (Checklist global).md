@@ -2,7 +2,7 @@
 tipo: log
 audiencia: ambos
 estado: en-progreso
-actualizado: 2026-06-11
+actualizado: 2026-07-22
 tags: [area/proyecto, progreso, checklist]
 ---
 
@@ -20,6 +20,9 @@ tags: [area/proyecto, progreso, checklist]
 - [x] **E06 — Handoff Asesor** → [[E06 - Handoff Asesor]] — *cerrada: auto-asignación por menor cola + cap, disponibilidad del asesor, takeover humano (apaga IA + despedida), chat en vivo asesor↔cliente (polling), notificaciones escalonadas por temperatura + reasignación automática (barrido), vista `/asesor/:id` con bandeja + "En vivo · sin asignar".*
 - [x] **E07 — Demo, Seed y Pulido** → [[E07 - Demo, Seed y Pulido]] — *cerrada: `seed_demo.py` realista con **inmuebles reales de Chroma**, 3 asesores dinámicos, `cerrado_perdido` y casos `atendido_por_humano`; tests e2e críticos; guion + ejemplos de demo. Pendiente menor: correr el e2e en vivo con servicios arriba.*
 - [x] **E08 — Agente de Métricas (Gerencia)** → [[E08 - Agente de Métricas (Gerencia)]] — *cerrada: `/performance` (§4.4) + **burbuja "Asistente Aquamarine"** en `/dashboard` (§4.5) con Haiku + tool-use real (`insights_agent`/`insights_tools`/`/insights/ask` + `AquaChat.tsx`), presets vía `/` + texto libre, honesta fuera de alcance.*
+
+## Roadmap post-MVP (planeado)
+- [ ] **E09 — Búsqueda por Proximidad Geográfica** → [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] — *planeada 2026-07-22. El lead pide "cerca del metro / de un D1 / de la Clínica X" y Aqua filtra por cercanía (haversine radial, POI 100% OSM/Overpass + GTFS del Metro; foco Valle de Aburrá). 9 sprints (1-6 CORE ≈0.5 día, 7-9 STRETCH). Ver [[Decisiones (Decision Log)]] D21.*
 
 ## Hitos de la demo (lo que debe funcionar para presentar)
 - [x] El cliente puede conversar con el asistente (chat web). *(E04 — chat funcional end-to-end)*
