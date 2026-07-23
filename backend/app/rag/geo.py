@@ -25,6 +25,7 @@ from app.rag.geo_const import (
     DATA_METRO_FILE,
     DATA_POI_FILE,
     _norm,
+    clave_geocache,
 )
 
 _RADIO_TIERRA_M = 6_371_000
@@ -101,6 +102,56 @@ def cargar_pois() -> dict[str, list[dict]]:
     for p in _leer_json(DATA_POI_FILE).get("pois", []):
         por_cat.setdefault(p["categoria"], []).append({COORD_LAT_KEY: p["lat"], COORD_LON_KEY: p["lon"]})
     return por_cat
+
+
+# ---------------------------------------------------------------------------
+# Enriquecimiento de una ficha en la ingesta (E09 · T09.9.1)
+# ---------------------------------------------------------------------------
+
+_COORD_SINTETICA = (6.000123, -75.000456)  # placeholder del seed original
+
+
+def _coords_no_confiables(lat, lon) -> bool:
+    """True si faltan, son ≈0, o son la coord sintética del seed (→ conviene geocodificar)."""
+    if lat is None or lon is None:
+        return True
+    if abs(lat - _COORD_SINTETICA[0]) < 1e-6 and abs(lon - _COORD_SINTETICA[1]) < 1e-6:
+        return True
+    return abs(lat) < 0.01 or abs(lon) < 0.01
+
+
+def enriquecer_inmueble(inmueble, centroides: dict, pois: dict):
+    """Rellena coords + setea las `dist_<cat>_m` de un `InmuebleIn` **in-place** (E09·T09.9.1).
+
+    `centroides` = salida de `cargar_centroides()`; `pois` = `{"metro": [...], "supermercado": [...], …}`
+    (estaciones + POIs OSM). Reglas de honestidad (idénticas al backfill `seed_geo`):
+    - coords: usa las del inmueble si son confiables; si no, el centroide de su `(zona, ciudad)`.
+    - `metro`: solo si el municipio tiene metro (flag del centroide).
+    - las 6 categorías OSM: solo si el inmueble cae en el bbox con cobertura de Overpass (Valle).
+
+    Falla-suave: si no hay coords ni centroide, no toca las distancias (la ficha se indexa igual).
+    Devuelve el mismo `inmueble` (mutado) por comodidad.
+    """
+    lat, lon = getattr(inmueble, "latitud", None), getattr(inmueble, "longitud", None)
+    centro = centroides.get(clave_geocache(getattr(inmueble, "zona", None),
+                                           getattr(inmueble, "ciudad", None)))
+    if _coords_no_confiables(lat, lon) and centro:
+        lat, lon = centro["lat"], centro["lon"]
+        inmueble.latitud, inmueble.longitud = lat, lon
+    if lat is None or lon is None:
+        return inmueble
+
+    pois_por_cat: dict = {}
+    if centro and centro.get("metro") and pois.get("metro"):
+        pois_por_cat["metro"] = pois["metro"]
+    if _en_valle(lat, lon):
+        for slug, lista in pois.items():
+            if slug != "metro":
+                pois_por_cat[slug] = lista
+
+    for clave, val in distancias_por_categoria(lat, lon, pois_por_cat).items():
+        setattr(inmueble, clave, val)  # clave == nombre del campo (dist_<cat>_m)
+    return inmueble
 
 
 # ---------------------------------------------------------------------------

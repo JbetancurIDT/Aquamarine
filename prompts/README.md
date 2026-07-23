@@ -8,6 +8,7 @@ entero es el prompt — y pégalo en la sesión del Dev (Claude Code, Opus 4.8 +
 
 ## Features
 - [`e09-geo/`](e09-geo/) — Búsqueda por proximidad geográfica (E09). Ver su `README.md` para el itinerario y el orden.
+- [`mapa-inmuebles/`](mapa-inmuebles/) — Pantalla de mapa (OpenStreetMap) con pines de todos los inmuebles + popup con imagen. Feature; sirve además para calibrar la búsqueda por cercanía. Un solo handoff: `handoff-mapa.md`.
 
 ## Convención
 - Un archivo por handoff: `handoff-N-....md`. **Todo el archivo es el prompt** (sin títulos ni adornos) → seleccionar-todo y copiar sin recortar nada.

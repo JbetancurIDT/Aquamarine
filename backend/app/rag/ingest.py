@@ -7,6 +7,7 @@ Lógica **importable**: la usan tanto el CLI `scripts/ingest.py` como el endpoin
 `POST /rag/reindex` (`app/api/rag.py`).
 """
 
+from app.rag import geo
 from app.rag.chroma_client import COLLECTION_NAME, get_chroma_client
 from app.rag.firecrawl_client import (
     BASE_URL_DEFECTO,
@@ -14,6 +15,18 @@ from app.rag.firecrawl_client import (
     map_properties,
     to_inmueble,
 )
+
+
+def _cargar_geo():
+    """Carga centroides + POIs (metro incluido) UNA vez para el enriquecimiento de la ingesta.
+    Falla-suave: si la data geo no está, devuelve None y la ingesta indexa sin `dist_*`."""
+    try:
+        centroides = geo.cargar_centroides()
+        pois = {"metro": geo.cargar_metro(), **geo.cargar_pois()}
+        return centroides, pois
+    except Exception as exc:  # data geo ausente/corrupta → no degradar la ingesta core
+        print(f"[geo-skip]   no se pudo cargar la data geo ({exc}); se indexa sin dist_*")
+        return None
 
 # Si se acumulan tantos errores SEGUIDOS, abortamos el barrido: es un fallo sistémico
 # (API key inválida, sin créditos, Chroma caído o sin red), no vale recorrer cientos
@@ -47,6 +60,7 @@ def ingest(base_url=None, urls=None, limit=None, index=True) -> dict:
     if index:
         coleccion = get_chroma_client().get_or_create_collection(COLLECTION_NAME)
 
+    geo_ctx = _cargar_geo()  # (centroides, pois) o None — una sola vez (E09·S9)
     errores_seguidos = 0  # se resetea con cada ficha procesada con éxito
 
     for url in lista:
@@ -75,6 +89,14 @@ def ingest(base_url=None, urls=None, limit=None, index=True) -> dict:
             print(f"[descartada] {url} -> {exc}")
             resumen["descartadas"] += 1
             continue
+
+        # 2b) Enriquecimiento geo (E09·S9): la ficha nace con coords + dist_*. **Falla-suave**:
+        #     nunca aborta ni cuenta en la racha de errores; si algo peta, se indexa igual sin dist_*.
+        if geo_ctx is not None:
+            try:
+                geo.enriquecer_inmueble(inmueble, *geo_ctx)
+            except Exception as exc:
+                print(f"[geo-skip]   {inmueble.inmueble_id} -> {exc}")
 
         # 3) Indexado idempotente (upsert por inmueble_id). Chroma es remoto: protegemos
         #    el upsert para que un timeout/5xx no aborte todo el barrido.

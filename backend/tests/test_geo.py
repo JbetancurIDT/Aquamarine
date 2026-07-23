@@ -9,6 +9,7 @@ de chromadb 1.5.9 (`col.update` hace MERGE; una clave con valor `None` se elimin
 from unittest.mock import MagicMock
 
 import scripts.seed_geo as seed_geo
+import app.rag.ingest as ingest_mod
 from app.agent.tools import ejecutar_buscar_inmuebles
 import app.agent.tools as tools_mod
 from app.core.config import settings
@@ -333,3 +334,60 @@ def test_backfill_pois_solo_dentro_del_valle(monkeypatch):
     seed_geo.backfill(T)
     assert "dist_super_m" in store["A"] and isinstance(store["A"]["dist_super_m"], int)  # Poblado (Valle)
     assert "dist_super_m" not in store["B"]  # Guatapé fuera del bbox → sin dist_super_m
+
+
+# ---------------------------------------------------------------------------
+# enriquecer_inmueble + hook de ingesta (E09 · T09.9.1)
+# ---------------------------------------------------------------------------
+
+def test_enriquecer_inmueble_rellena_coords_y_dist():
+    inm = InmuebleIn(**_BASE_INM)  # Poblado, Medellín, sin coords
+    centroides = {"poblado|medellin": {"lat": 6.209, "lon": -75.567, "metro": True}}
+    pois = {"metro": [{"lat": 6.2124, "lon": -75.5779}], "supermercado": [{"lat": 6.210, "lon": -75.568}]}
+    geo.enriquecer_inmueble(inm, centroides, pois)
+    assert inm.latitud is not None and inm.longitud is not None       # coord desde el centroide
+    assert isinstance(inm.dist_metro_m, int) and isinstance(inm.dist_super_m, int)
+    assert "dist_metro_m" in inm.metadata and "dist_super_m" in inm.metadata
+
+
+def _mock_ingest_env(monkeypatch, inmueble, capturas):
+    monkeypatch.setattr(ingest_mod, "extract_property", lambda url: {"raw": True})
+    monkeypatch.setattr(ingest_mod, "to_inmueble", lambda raw, url: inmueble)
+    col = MagicMock()
+    col.upsert.side_effect = lambda ids, documents, metadatas: capturas.append(metadatas[0])
+    chroma = MagicMock()
+    chroma.get_or_create_collection.return_value = col
+    monkeypatch.setattr(ingest_mod, "get_chroma_client", lambda: chroma)
+    monkeypatch.setattr(geo, "cargar_centroides",
+                        lambda: {"poblado|medellin": {"lat": 6.209, "lon": -75.567, "metro": True}})
+    monkeypatch.setattr(geo, "cargar_metro", lambda: [{"lat": 6.2124, "lon": -75.5779}])
+    monkeypatch.setattr(geo, "cargar_pois", lambda: {"supermercado": [{"lat": 6.210, "lon": -75.568}]})
+
+
+def test_ingest_indexa_ficha_nueva_con_dist(monkeypatch):
+    """Una ficha nueva se indexa YA con dist_* poblado (coords desde el centroide)."""
+    inm = InmuebleIn(inmueble_id="NEW1", tenant_id=T, titulo="Apto nuevo", ciudad="Medellín",
+                     zona="Poblado", tipo="apartamento", url_fuente="http://x")
+    capt: list[dict] = []
+    _mock_ingest_env(monkeypatch, inm, capt)
+    resumen = ingest_mod.ingest(urls=["http://x"], index=True)
+    assert resumen["indexadas"] == 1
+    md = capt[0]
+    assert isinstance(md.get("dist_metro_m"), int) and isinstance(md.get("dist_super_m"), int)
+    assert md.get("latitud") is not None
+
+
+def test_ingest_geo_falla_suave(monkeypatch):
+    """Si el enriquecimiento peta, la ficha se indexa IGUAL (sin dist_*), sin abortar la ingesta."""
+    inm = InmuebleIn(inmueble_id="NEW2", tenant_id=T, titulo="Apto", ciudad="Medellín",
+                     zona="Poblado", tipo="apartamento", url_fuente="http://x")
+    capt: list[dict] = []
+    _mock_ingest_env(monkeypatch, inm, capt)
+
+    def _boom(*a, **k):
+        raise RuntimeError("geo caído")
+
+    monkeypatch.setattr(geo, "enriquecer_inmueble", _boom)
+    resumen = ingest_mod.ingest(urls=["http://x"], index=True)  # no debe lanzar
+    assert resumen["indexadas"] == 1
+    assert "dist_metro_m" not in capt[0]  # sin dist_*: el enriquecimiento falló pero se indexó
