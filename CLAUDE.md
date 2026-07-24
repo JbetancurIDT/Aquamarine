@@ -28,6 +28,7 @@ actualiza su `<feature>.md` y enlázalo en esta tabla.**
 | Dashboard métricas + Pipeline Kanban (E05/E06) | [dashboard.md](dashboard.md) | `/dashboard` (KPIs/funnel/donut) + `/pipeline` (Kanban drag-drop + asignar asesor) + `/asesor/:id`; `GET /metrics/overview` con filtros; `PATCH /leads/{id}/asesor`; seed_demo.py |
 | Handoff completo: takeover + barrido + performance (E07) | [handoff.md](handoff.md) | Auto-asignación por carga; `POST /leads/{id}/tomar` (IA silenciada); barrido (notificaciones + reasignación); `/leads/en-vivo`, `PATCH /asesores/{id}/disponibilidad`, `GET /metrics/asesores` + `/metrics/propiedades`; `/performance` con SLA |
 | Búsqueda por proximidad geográfica (E09) | [geo.md](geo.md) | Cercanía haversine: categorías fijas (`dist_*_m` precalculadas en Chroma) + tool `cerca_de`/`radio_km` como filtro DURO y honesto (metro solo Valle de Aburrá). CORE v1; fuentes en vivo (OSM/GTFS/Nominatim) y fallback por nombre propio en roadmap |
+| Mapa de inmuebles | [mapa.md](mapa.md) | Pantalla `/mapa` (Leaflet + OSM): pines de todo el inventario con popup `PropertyCard` + cercanías; `GET /rag/inmuebles/mapa`. Coords = centroide de barrio |
 
 ## Dónde está el contexto del proyecto
 

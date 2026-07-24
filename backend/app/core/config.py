@@ -45,6 +45,15 @@ class Settings(BaseSettings):
                            "Medellin%20-%20Metro/stops.txt")
     GEO_DEFAULT_RADIO_KM: float = 3.0
 
+    # Rutas del mapa interactivo (OpenRouteService, OSM — sin Google). Si ORS_API_KEY está vacía o
+    # ORS falla, el endpoint /geo/ruta cae a una ruta en LÍNEA RECTA (aprox) para que la demo funcione.
+    ORS_API_KEY: str = ""
+    ORS_URL: str = "https://api.openrouteservice.org/v2/directions"
+    # OSRM público: ruteo por CALLES sin key (paso intermedio ORS → OSRM → línea recta).
+    # Swappable a un OSRM self-hosted. El demo público tiene límites de uso (no producción pesada).
+    OSRM_URL: str = "https://router.project-osrm.org"
+    GEO_MODO_UMBRAL_M: int = 1800  # modo=auto: caminando por debajo de este umbral, si no carro
+
     # Entorno de ejecución: development | staging | production.
     ENVIRONMENT: str = "development"
 

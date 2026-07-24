@@ -6,6 +6,7 @@ const LINKS: { to: string; label: string }[] = [
   { to: '/chat',        label: 'Chat' },
   { to: '/dashboard',   label: 'Dashboard' },
   { to: '/pipeline',    label: 'Pipeline' },
+  { to: '/mapa',        label: 'Mapa' },
   { to: '/performance', label: 'Performance' },
   { to: '/asesores',    label: 'Asesores' },
 ]

@@ -6,6 +6,7 @@ que reusa `app.rag.search`. Soporta dos rutas:
 - solo `query`      → búsqueda semántica existente.
 """
 
+from app.rag.geo import lugares_cerca
 from app.rag.geo_const import CERCANIA_KEYS, ETIQUETA_CAT
 from app.rag.search import buscar_inmuebles, buscar_por_lugar, obtener_inmueble_por_codigo
 
@@ -79,11 +80,15 @@ BUSCAR_INMUEBLES_TOOL = {
                     "cerca_de_lugar": {
                         "type": "string",
                         "description": (
-                            "Lugar con NOMBRE PROPIO al que el cliente quiere estar cerca: un punto de "
-                            "interés específico ('EAFIT', 'Clínica Las Américas', 'Parque Lleras', "
-                            "'Aeropuerto JMC'). Se geocodifica y se rankea el inventario por distancia. "
-                            "EXCLUYENTE con `cerca_de`: usa `cerca_de` para CATEGORÍAS (un metro, un "
-                            "supermercado) y `cerca_de_lugar` para un lugar puntual con nombre propio."
+                            "Lugar con NOMBRE PROPIO al que el cliente quiere estar cerca (un mirador, "
+                            "una clínica, una universidad, una plaza, un centro comercial). Pasa el "
+                            "**nombre OFICIAL de mapa, cualificado con ciudad/departamento y ya "
+                            "desambiguado** — NO las palabras crudas del lead. "
+                            "Ej: 'la piedra del peñol' → 'Mirador del Peñol, El Peñol, Antioquia'; "
+                            "'cerca de La América' (sector Estadio) → 'Plaza de Mercado La América, "
+                            "Medellín'. Se geocodifica y se rankea el inventario por distancia. "
+                            "EXCLUYENTE con `cerca_de` (que es para CATEGORÍAS genéricas: un metro, un "
+                            "supermercado)."
                         ),
                     },
                 },
@@ -96,10 +101,36 @@ BUSCAR_INMUEBLES_TOOL = {
                     "no semántica."
                 ),
             },
+            "preferencias": {
+                "type": "array",
+                "items": {"type": "string",
+                          "enum": ["parqueadero", "cerca_metro", "espacio_oficina", "conectado"]},
+                "description": (
+                    "Preferencia SUAVE según cómo se mueve el lead (su movilidad). **REORDENA** los "
+                    "resultados (pone primero los que encajan) — NO filtra ni excluye, el conteo no baja. "
+                    "Mapea: carro/moto/vehículo→parqueadero; metro/bus/transporte público→cerca_metro; "
+                    "a pie/bici/patineta→conectado; desde casa/teletrabajo→espacio_oficina. Es info extra "
+                    "para ofrecer algo que valore más, NO un requisito (para requisito duro de cercanía usa "
+                    "`filtros.cerca_de`)."
+                ),
+            },
         },
         "required": ["query"],
     },
 }
+
+
+# Etiqueta legible de cada preferencia de movilidad, para el "(ideal para ti: …)".
+_PREF_LABEL = {"parqueadero": "parqueadero", "cerca_metro": "cerca del metro",
+               "espacio_oficina": "espacio para oficina/estudio", "conectado": "muy conectado"}
+
+
+def _frase_pref(inm: dict) -> str:
+    """"(ideal para ti: parqueadero · cerca del metro)" cuando el inmueble cumple preferencias; si no, ""."""
+    ok = inm.get("preferencias_ok") or []
+    if not ok:
+        return ""
+    return f"  (ideal para ti: {' · '.join(_PREF_LABEL.get(p, p) for p in ok)})"
 
 
 def _frase_cercania(inm: dict, cat: str | None) -> str:
@@ -134,8 +165,65 @@ def _formatear_linea(inm: dict, numero: int, cat: str | None = None) -> str:
         f"{numero}. {inm.get('titulo', 'Inmueble')} — {inm.get('tipo', '?')} en "
         f"{inm.get('zona', '?')}, {inm.get('ciudad', '?')}. {precio_txt}. "
         f"{inm.get('habitaciones', '?')} hab, {inm.get('banos', '?')} baños "
-        f"(id {inm.get('inmueble_id')}).{etiqueta}{_frase_cercania(inm, cat)}"
+        f"(id {inm.get('inmueble_id')}).{etiqueta}{_frase_cercania(inm, cat)}{_frase_pref(inm)}"
     )
+
+
+# Tool para "¿qué hay cerca?" (E09·H8): nombres reales de POIs alrededor de un inmueble ya mostrado.
+LUGARES_CERCA_TOOL = {
+    "name": "lugares_cerca",
+    "description": (
+        "Lista los lugares REALES (con nombre y distancia aprox.) alrededor de un inmueble ya "
+        "mostrado. Úsala cuando pregunten qué hay cerca/alrededor de una propiedad, o por una "
+        "categoría concreta ('¿qué colegios?', '¿supermercados?'). Devuelve solo las categorías con "
+        "algo en el radio; omite las vacías. NO inventes: si no está aquí, no existe."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "codigo": {"type": "string",
+                       "description": "Código del inmueble ya mostrado (para tomar su ubicación)."},
+            "categoria": {"type": "string", "enum": list(CERCANIA_KEYS),
+                          "description": "Opcional: una sola categoría (para '¿qué colegios?')."},
+        },
+        "required": ["codigo"],
+    },
+}
+
+# Etiqueta legible por categoría para el listado del handler.
+_LUGARES_LABEL = {"metro": "Metro", "supermercado": "Supermercados",
+                  "centro_comercial": "Centros comerciales", "colegio": "Colegios",
+                  "universidad": "Universidades", "parque": "Parques", "clinica": "Clínicas"}
+
+
+def _aprox_m(m: int) -> str:
+    return f"~{max(100, round(m / 100) * 100)} m" if m < 1000 else f"~{m / 1000:.1f} km"
+
+
+def ejecutar_lugares_cerca(args: dict) -> tuple[str, list[dict]]:
+    """Lugares reales cerca de un inmueble. Devuelve (texto, []) — **sin inmuebles** (no genera tarjetas)."""
+    args = args or {}
+    codigo = str(args.get("codigo") or "").strip()
+    categoria = args.get("categoria")
+    if not codigo:
+        return ("Necesito el código del inmueble para decirte qué hay cerca.", [])
+    inm = obtener_inmueble_por_codigo(codigo)
+    if not inm or inm.get("latitud") is None or inm.get("longitud") is None:
+        return (f"No tengo la ubicación de ese inmueble ({codigo}) para decirte qué hay alrededor.", [])
+
+    cercanos = lugares_cerca(inm["latitud"], inm["longitud"], categoria=categoria)
+    if not cercanos:
+        return ("No tengo lugares registrados en el radio alrededor de ese inmueble. NO afirmes que "
+                "no existe nada: puede que no tengamos ese dato en la zona. Ofrece ayudar con otra cosa.", [])
+
+    lineas = []
+    for cat in CERCANIA_KEYS:  # orden congelado; omite las que no vinieron
+        items = cercanos.get(cat)
+        if not items:
+            continue
+        listado = ", ".join(f"{i['nombre']} ({_aprox_m(i['dist_m'])})" for i in items)
+        lineas.append(f"- {_LUGARES_LABEL.get(cat, cat)}: {listado}")
+    return ("Lugares reales cerca de ese inmueble (distancias aproximadas):\n" + "\n".join(lineas), [])
 
 
 def _handler_por_lugar(lugar: str, filtros: dict) -> tuple[str, list[dict]]:
@@ -191,7 +279,7 @@ def ejecutar_buscar_inmuebles(args: dict) -> tuple[str, list[dict]]:
     # Camino semántico tolerante (over-fetch + relax-and-retry dentro de buscar_inmuebles).
     query = args.get("query") or ""
     cat = (filtros or {}).get("cerca_de")  # categoría de cercanía pedida (o None)
-    inmuebles = buscar_inmuebles(query, filtros, k=3)
+    inmuebles = buscar_inmuebles(query, filtros, k=3, preferencias=args.get("preferencias"))
 
     if not inmuebles:
         if cat:

@@ -140,3 +140,125 @@ def test_routing_lugar_tiene_prioridad_sobre_categoria(monkeypatch):
     texto, inms = ejecutar_buscar_inmuebles(
         {"query": "apto", "filtros": {"cerca_de_lugar": "EAFIT", "cerca_de": "metro"}})
     assert "más cercanos a “EAFIT”" in texto  # ganó cerca_de_lugar
+
+
+# --- robustez del geocoder (E09·H7): región sin duplicar, mayor importance, fallback de simplificación ---
+
+def test_simplificar_quita_conectores():
+    # quita conectores/muletillas pero CONSERVA los artículos de topónimo (La Ceja, El Peñol…)
+    assert geo_mod._simplificar("el mirador de la piedra del peñol") == "el mirador piedra peñol"
+    assert geo_mod._simplificar("cerca de La América") == "la américa"
+    assert geo_mod._simplificar("La Ceja") == "la ceja"  # no mutila el topónimo
+
+
+def test_con_region_no_duplica_pais():
+    ya = "Mirador del Peñol, El Peñol, Antioquia, Colombia"
+    assert geo_mod._con_region(ya) == ya            # ya trae país → no encima
+    assert geo_mod._con_region("EAFIT") == "EAFIT, Colombia"  # no trae → añade
+
+
+def test_nominatim_fallback_simplifica_cuando_completa_da_cero(monkeypatch):
+    llamadas = []
+
+    def fake(q):
+        llamadas.append(q)
+        # la query completa (con muletillas "de la") da 0; la simplificada resuelve
+        return [] if "de la" in q.lower() else [{"lat": "6.2205", "lon": "-75.1780", "importance": 0.6}]
+
+    monkeypatch.setattr(geo_mod, "_consulta_nominatim", fake)
+    assert geo_mod._nominatim("el mirador de la piedra del peñol") == (6.2205, -75.178)
+    assert len(llamadas) == 2  # completa + simplificada (una sola pasada de fallback)
+
+
+def test_nominatim_toma_el_de_mayor_importance(monkeypatch):
+    monkeypatch.setattr(geo_mod, "_consulta_nominatim", lambda q: [
+        {"lat": "6.2", "lon": "-75.5", "importance": 0.9},
+        {"lat": "1.0", "lon": "1.0", "importance": 0.1},
+    ])
+    assert geo_mod._nominatim("EAFIT") == (6.2, -75.5)  # el 1º (Nominatim ordena por importance)
+
+
+def test_nominatim_no_reconsulta_si_la_completa_resuelve(monkeypatch):
+    """Si la query completa ya resuelve, NO se dispara el fallback (una sola consulta)."""
+    llamadas = []
+
+    def fake(q):
+        llamadas.append(q)
+        return [{"lat": "6.2", "lon": "-75.58", "importance": 0.8}]
+
+    monkeypatch.setattr(geo_mod, "_consulta_nominatim", fake)
+    assert geo_mod._nominatim("Mirador del Peñol, El Peñol, Antioquia") == (6.2, -75.58)
+    assert len(llamadas) == 1  # resolvió a la primera → sin reconsulta
+
+
+def test_nominatim_sin_reconsulta_redundante_si_simplificar_no_cambia(monkeypatch):
+    """Un nombre sin conectores que da 0 NO se reconsulta (el guard `_norm(simp)!=_norm(nombre)`)."""
+    llamadas = []
+    monkeypatch.setattr(geo_mod, "_consulta_nominatim", lambda q: llamadas.append(q) or [])
+    assert geo_mod._nominatim("EAFIT") is None  # 0 resultados y simplificar no cambia
+    assert len(llamadas) == 1  # una sola consulta (sin reconsulta idéntica)
+
+
+def test_consulta_nominatim_respeta_rate_limit(monkeypatch):
+    """Ejercita el rate-limit REAL de `_consulta_nominatim`: duerme lo que falte para 1 req/s."""
+    import app.rag.geo as g
+
+    class _FakeTime:
+        def __init__(self, t):
+            self.t = t
+            self.sleeps = []
+
+        def time(self):
+            return self.t
+
+        def sleep(self, s):
+            self.sleeps.append(s)
+            self.t += s
+
+    ft = _FakeTime(100.3)
+    monkeypatch.setattr(g, "time", ft)
+    old_ts = g._ULTIMO_GEOCODE[0]
+    g._ULTIMO_GEOCODE[0] = 100.0  # último request hace 0.3 s → debe dormir 0.8 s
+
+    class _Resp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b"[]"
+
+    monkeypatch.setattr(g.urllib.request, "urlopen", lambda req, timeout=15: _Resp())
+    try:
+        g._consulta_nominatim("Lugar X")
+        assert len(ft.sleeps) == 1 and abs(ft.sleeps[0] - 0.8) < 1e-6
+        assert abs(g._ULTIMO_GEOCODE[0] - 101.1) < 1e-6  # timestamp actualizado tras dormir
+    finally:
+        g._ULTIMO_GEOCODE[0] = old_ts  # no dejar un timestamp falso para otros tests
+
+
+def test_geocode_vivo_cache_hit_no_geocodifica(monkeypatch):
+    """La caché sigue intacta: un hit no vuelve a geocodificar ni reescribe."""
+    monkeypatch.setattr(geo_mod, "_cargar_geocache",
+                        lambda: ({}, {"lugar:eafit": {"lat": 6.2, "lon": -75.58}}))
+    saves = []
+    monkeypatch.setattr(geo_mod, "_guardar_geocache", lambda doc, cache: saves.append(1))
+
+    def boom(_n):
+        raise AssertionError("un cache hit no debe geocodificar")
+
+    assert geo_mod.geocode_vivo("EAFIT", geocodificador=boom) == (6.2, -75.58)
+    assert saves == []
+
+
+def test_geocode_vivo_inyeccion_no_toca_red_y_cachea(monkeypatch):
+    """La inyección para tests sigue funcionando (sin red) y persiste en caché."""
+    store: dict = {}
+    monkeypatch.setattr(geo_mod, "_cargar_geocache", lambda: ({}, store))
+    monkeypatch.setattr(geo_mod, "_guardar_geocache", lambda doc, cache: None)
+    monkeypatch.setattr(geo_mod, "_consulta_nominatim",
+                        lambda q: (_ for _ in ()).throw(AssertionError("no debe tocar red")))
+    assert geo_mod.geocode_vivo("Lugar Nuevo", geocodificador=lambda n: (6.1, -75.2)) == (6.1, -75.2)
+    assert store["lugar:lugar nuevo"]["lat"] == 6.1  # se cacheó con la clave normalizada

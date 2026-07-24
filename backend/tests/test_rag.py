@@ -118,7 +118,7 @@ def test_tool_sin_codigo_usa_semantica(monkeypatch):
     monkeypatch.setattr(
         tools_mod,
         "buscar_inmuebles",
-        lambda query, filtros, k=3: [_META_9718612],
+        lambda query, filtros, k=3, preferencias=None: [_META_9718612],
     )
     texto, inmuebles = ejecutar_buscar_inmuebles({"query": "apto en Poblado"})
     assert "Poblado" in texto
@@ -127,7 +127,7 @@ def test_tool_sin_codigo_usa_semantica(monkeypatch):
 
 def test_tool_sin_codigo_sin_resultados(monkeypatch):
     """Sin codigo y Chroma vacío, retorna el mensaje de sin resultados."""
-    monkeypatch.setattr(tools_mod, "buscar_inmuebles", lambda query, filtros, k=3: [])
+    monkeypatch.setattr(tools_mod, "buscar_inmuebles", lambda query, filtros, k=3, preferencias=None: [])
     texto, inmuebles = ejecutar_buscar_inmuebles({"query": "casa en Marte"})
     assert "sin resultados" in texto.lower()
     assert inmuebles == []

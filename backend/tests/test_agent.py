@@ -103,7 +103,7 @@ def test_responder_con_tool(db, monkeypatch):
     monkeypatch.setattr(
         tools,
         "buscar_inmuebles",
-        lambda query, filtros, k=3: [
+        lambda query, filtros, k=3, preferencias=None: [
             {
                 "inmueble_id": "9718612", "titulo": "Apto Poblado", "tipo": "apartamento",
                 "zona": "Poblado", "ciudad": "Medellín", "precio": 4500000000,

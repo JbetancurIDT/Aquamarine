@@ -257,6 +257,46 @@ def test_where_no_incluye_tipo_ni_zona(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
+# tipo_negocio: filtro DURO (venta ≠ arriendo) en todos los niveles de relajación
+# ---------------------------------------------------------------------------
+
+def _pasa_where(meta, where):
+    """Mini-Chroma: aplica $eq/$lte/$gte del where (maneja $and)."""
+    if not where:
+        return True
+    if "$and" in where:
+        return all(_pasa_where(meta, c) for c in where["$and"])
+    for k, cond in where.items():
+        v = meta.get(k)
+        if "$eq" in cond and v != cond["$eq"]:
+            return False
+        if "$lte" in cond and (v is None or v > cond["$lte"]):
+            return False
+        if "$gte" in cond and (v is None or v < cond["$gte"]):
+            return False
+    return True
+
+
+def _mock_chroma_where(monkeypatch, pool):
+    col = MagicMock()
+    col.query.side_effect = lambda **kw: _pack([(m, d) for (m, d) in pool if _pasa_where(m, kw.get("where"))])
+    chroma = MagicMock()
+    chroma.get_or_create_collection.return_value = col
+    monkeypatch.setattr(search_mod, "get_chroma_client", lambda: chroma)
+    return col
+
+
+def test_tipo_negocio_filtra_duro(monkeypatch):
+    """Con tipo_negocio='venta' un arriendo (aunque su canon quepa en el presupuesto) NO se cuela."""
+    venta = _inm("V1", "Casa venta", "casa", "Poblado", "Medellín", 1_500_000_000, 4, 3, tipo_negocio="venta")
+    arriendo = _inm("A1", "Casa arriendo", "casa", "Poblado", "Medellín", 25_000_000, 4, 3, tipo_negocio="arriendo")
+    _mock_chroma_where(monkeypatch, [venta, arriendo])
+    res = buscar_inmuebles("casa en Poblado", {"tipo_negocio": "venta", "precio_max": 2_000_000_000}, k=5)
+    ids = [r["inmueble_id"] for r in res]
+    assert "V1" in ids and "A1" not in ids  # el arriendo queda fuera en TODOS los niveles
+
+
+# ---------------------------------------------------------------------------
 # Handler: surface de exacta vs cercana en el texto para Claude
 # ---------------------------------------------------------------------------
 
@@ -264,7 +304,7 @@ def test_handler_marca_alternativa_cercana(monkeypatch):
     """El texto que recibe Claude distingue alternativa cercana de match exacto."""
     monkeypatch.setattr(
         tools_mod, "buscar_inmuebles",
-        lambda query, filtros, k=3: [
+        lambda query, filtros, k=3, preferencias=None: [
             {"inmueble_id": "9637369", "titulo": "Finca en Guatapé", "tipo": "finca",
              "zona": "Guatapé", "ciudad": "Antioquia", "precio": 2_200_000_000,
              "habitaciones": 4, "banos": 3, "coincidencia": "cercana",
@@ -282,7 +322,7 @@ def test_handler_marca_alternativa_cercana(monkeypatch):
 
 def test_handler_vacio_no_dice_no_existe(monkeypatch):
     """Con búsqueda vacía, el texto NO afirma tajante que no existe nada."""
-    monkeypatch.setattr(tools_mod, "buscar_inmuebles", lambda query, filtros, k=3: [])
+    monkeypatch.setattr(tools_mod, "buscar_inmuebles", lambda query, filtros, k=3, preferencias=None: [])
     texto, inmuebles = ejecutar_buscar_inmuebles({"query": "casa en Marte"})
     assert inmuebles == []
     assert "sin resultados" in texto.lower()

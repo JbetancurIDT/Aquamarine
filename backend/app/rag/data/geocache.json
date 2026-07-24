@@ -3,7 +3,7 @@
     "fuente": "Nominatim / OpenStreetMap",
     "convencion_coords": "lat/lon",
     "clave": "clave_geocache(zona, ciudad)",
-    "n": 39,
+    "n": 42,
     "precision": "centroide de barrio/municipio (cientos de m a ~1-2 km)",
     "generado_por": "scripts/build_geocache.py (E09·T09.7.3)"
   },
@@ -204,12 +204,33 @@
       "valle_aburra": true,
       "query": "Llanogrande, Rionegro, Antioquia, Colombia"
     },
+    "lugar:barrio la america, medellin, antioquia": {
+      "lat": 6.24779,
+      "lon": -75.608954,
+      "granularidad": "lugar",
+      "valle_aburra": true,
+      "query": "Barrio La América, Medellín, Antioquia"
+    },
     "lugar:eafit": {
       "lat": 6.200202,
       "lon": -75.578485,
       "granularidad": "lugar",
       "valle_aburra": true,
       "query": "EAFIT"
+    },
+    "lugar:mirador del penol, el penol, antioquia": {
+      "lat": 6.204579,
+      "lon": -75.210654,
+      "granularidad": "lugar",
+      "valle_aburra": false,
+      "query": "Mirador del Peñol, El Peñol, Antioquia"
+    },
+    "lugar:universidad pontificia bolivariana, medellin, antioquia": {
+      "lat": 6.241944,
+      "lon": -75.589529,
+      "granularidad": "lugar",
+      "valle_aburra": true,
+      "query": "Universidad Pontificia Bolivariana, Medellín, Antioquia"
     },
     "obrero|apartado": {
       "lat": 7.885625,

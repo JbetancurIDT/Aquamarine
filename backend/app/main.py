@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.asesores import router as asesores_router
 from app.api.chat import router as chat_router
+from app.api.geo import router as geo_router
 from app.api.insights import router as insights_router
 from app.api.leads import router as leads_router
 from app.api.mensajes import router as mensajes_router
@@ -53,6 +54,7 @@ def health() -> dict[str, str]:
 
 # Routers de feature.
 app.include_router(rag_router)
+app.include_router(geo_router)
 app.include_router(leads_router)
 app.include_router(mensajes_router)
 app.include_router(metrics_router)

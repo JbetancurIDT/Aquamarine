@@ -224,8 +224,9 @@ def _ordenar(items: list[dict]) -> list[dict]:
                   reverse=True)
 
 
-def buscar_inmuebles(query: str, filtros: dict | None = None, k: int = 5) -> list[dict]:
-    """Top-k inmuebles tolerante con relax-and-retry.
+def _buscar_base(query: str, filtros: dict | None = None, k: int = 5) -> list[dict]:
+    """Top-k inmuebles tolerante con relax-and-retry (motor base; el re-ranking suave por
+    preferencias de movilidad lo aplica `buscar_inmuebles`).
 
     Filtros numéricos duros (precio/habitaciones/baños/tipo_negocio/es_lujo) + `tipo`/`zona`
     como señal semántica y post-filtro tolerante. Si quedan < k, relaja en orden
@@ -289,6 +290,47 @@ def buscar_inmuebles(query: str, filtros: dict | None = None, k: int = 5) -> lis
         _agregar(_ordenar(extra), "cercana", "precio un poco fuera de tu rango")
 
     return resultados[:k]
+
+
+# Preferencias de movilidad (E09·movilidad): sesgo SUAVE (reordena, NO filtra). Umbrales tuneables.
+_PREFERENCIAS = ("parqueadero", "cerca_metro", "espacio_oficina", "conectado")
+
+
+def _cumple_pref(meta: dict, pref: str) -> bool:
+    """True si el inmueble encaja con la preferencia de movilidad (con los datos ya en metadata)."""
+    if pref == "parqueadero":
+        return int(meta.get("parqueaderos") or 0) >= 1
+    if pref == "cerca_metro":
+        d = meta.get("dist_metro_m")
+        return isinstance(d, (int, float)) and d <= 1500
+    if pref == "espacio_oficina":
+        return (int(meta.get("area_m2") or 0) >= 90) or (int(meta.get("habitaciones") or 0) >= 3)
+    if pref == "conectado":
+        d = meta.get("dist_metro_m")
+        if isinstance(d, (int, float)) and d <= 1500:
+            return True
+        cercanas = sum(1 for clave in CERCANIA_KEYS.values()
+                       if isinstance(meta.get(clave), (int, float)) and meta[clave] <= 800)
+        return cercanas >= 3
+    return False
+
+
+def buscar_inmuebles(query: str, filtros: dict | None = None, k: int = 5,
+                     preferencias: list | None = None) -> list[dict]:
+    """Top-k tolerante (`_buscar_base`) + **re-ranking suave** por preferencias de movilidad.
+
+    `preferencias` = lista de {parqueadero, cerca_metro, espacio_oficina, conectado}. Reordena los
+    resultados poniendo primero los que cumplen MÁS preferencias (desempate estable por la relevancia
+    actual). **NUNCA excluye ni cambia el conteo** — solo reordena; cada resultado se marca con
+    `preferencias_ok` (cuáles cumple). Sin `preferencias`, el orden es idéntico al de siempre.
+    """
+    resultados = _buscar_base(query, filtros, k)
+    prefs = [p for p in (preferencias or []) if p in _PREFERENCIAS]
+    for r in resultados:
+        r["preferencias_ok"] = [p for p in prefs if _cumple_pref(r, p)]
+    if prefs:  # sorted() es estable → dentro del mismo # de preferencias conserva el orden actual
+        resultados = sorted(resultados, key=lambda r: -len(r["preferencias_ok"]))
+    return resultados
 
 
 def _aprox_dist(m: float) -> str:

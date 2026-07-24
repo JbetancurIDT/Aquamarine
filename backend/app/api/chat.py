@@ -33,6 +33,12 @@ class ChatRequest(BaseModel):
     origen: str | None = None
 
 
+class MapaPreview(BaseModel):
+    codigo: str
+    titulo: str
+    imagen: str | None = None
+
+
 class ChatResponse(BaseModel):
     respuesta: str
     inmuebles: list[dict]
@@ -40,6 +46,7 @@ class ChatResponse(BaseModel):
     temperatura: str
     lead_id: UUID
     atendido_por_humano: bool = False  # True = IA silenciada, asesor humano al mando
+    mapa: MapaPreview | None = None  # tarjeta "Ver mapa interactivo"; None si no se ofreció mapa
 
 
 def _procesar_turno(

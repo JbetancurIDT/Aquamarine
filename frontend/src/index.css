@@ -70,3 +70,9 @@ body {
 }
 .scrollbar-brand-thin::-webkit-scrollbar-thumb:hover { background: var(--champ-soft); }
 .scrollbar-brand-thin::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Popup del mapa (feat/mapa-inmuebles) ──────────────────────────────────
+   Leaflet mete padding/márgenes por defecto; los reducimos para que la
+   PropertyCard (con su propio borde/sombra) mande dentro del popup. */
+.mapa-popup .leaflet-popup-content-wrapper { padding: 4px; border-radius: 14px; }
+.mapa-popup .leaflet-popup-content { margin: 6px; width: auto !important; }

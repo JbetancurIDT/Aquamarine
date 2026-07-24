@@ -5,6 +5,8 @@ import PipelinePage from './pages/PipelinePage'
 import AsesorPage from './pages/AsesorPage'
 import AsesoresPage from './pages/AsesoresPage'
 import PerformancePage from './pages/PerformancePage'
+import MapaPage from './pages/MapaPage'
+import MapaPropiedadPage from './pages/MapaPropiedadPage'
 
 export default function App() {
   return (
@@ -18,6 +20,8 @@ export default function App() {
         <Route path="/asesores" element={<AsesoresPage />} />
         <Route path="/asesor/:asesorId" element={<AsesorPage />} />
         <Route path="/performance" element={<PerformancePage />} />
+        <Route path="/mapa" element={<MapaPage />} />
+        <Route path="/mapa/propiedad/:codigo" element={<MapaPropiedadPage />} />
       </Routes>
     </BrowserRouter>
   )

@@ -234,7 +234,7 @@ def test_frase_cercania_en_el_texto(monkeypatch):
     """Con cerca_de, la línea del inmueble muestra la distancia aproximada."""
     monkeypatch.setattr(
         tools_mod, "buscar_inmuebles",
-        lambda query, filtros, k=3: [{
+        lambda query, filtros, k=3, preferencias=None: [{
             "inmueble_id": "9740978", "titulo": "Apto Poblado", "tipo": "apartamento",
             "zona": "Poblado", "ciudad": "Medellín", "precio": 900_000_000,
             "habitaciones": 3, "banos": 2, "coincidencia": "exacta", "dist_metro_m": 640,

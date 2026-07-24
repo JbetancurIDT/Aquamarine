@@ -37,6 +37,7 @@ class PerfilExtraido(BaseModel):
     interes_urgencia: Optional[Literal["alta", "media", "baja"]] = None
     inmueble_interes: Optional[str] = None  # inmueble_id si se enfocó en uno específico
     origen: Optional[str] = None  # canal si el cliente dijo cómo nos conoció
+    movilidad: Optional[str] = None  # cómo se mueve el lead: carro|moto|metro|bus|a_pie|bici|desde_casa|…
     pide_humano: bool = False  # True si pidió hablar con una persona / asesor real
 
 
@@ -52,6 +53,8 @@ Normalización:
 (p.ej. "5 mil millones" → 5000000000).
 - `interes_urgencia`: "alta" si suena decidido/urgente o pide visitar ya; "media" si \
 interesado sin afán; "baja" si solo explora.
+- `movilidad`: cómo se mueve el cliente si lo menciona, normalizado a una palabra: \
+"carro" | "moto" | "metro" | "bus" | "a_pie" | "bici" | "desde_casa" (teletrabajo). Si no lo dice, null.
 - `pide_humano`: true si el cliente pide hablar con una persona o asesor real.
 """
 
@@ -76,6 +79,7 @@ _EXTRACTION_TOOL: dict = {
             "interes_urgencia": {"type": "string", "enum": ["alta", "media", "baja"]},
             "inmueble_interes": {"type": "string"},
             "origen": {"type": "string"},
+            "movilidad": {"type": "string"},
             "pide_humano": {"type": "boolean"},
         },
         "required": ["pide_humano"],
@@ -118,9 +122,10 @@ def extraer_perfil(historial: list[dict]) -> PerfilExtraido:
 
 
 # Campos del PerfilExtraido que viven en el jsonb `lead.perfil` (no en columnas del lead).
+# `movilidad` es preferencia (NO califica al lead — no está en _CAMPOS_CALIFICAN del orquestador).
 _CAMPOS_PERFIL = (
     "tipo", "zona", "ciudad", "presupuesto_min", "presupuesto_max",
-    "habitaciones", "plazo", "notas", "inmueble_interes",
+    "habitaciones", "plazo", "notas", "inmueble_interes", "movilidad",
 )
 
 

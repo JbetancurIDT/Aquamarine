@@ -9,9 +9,11 @@ para tests offline.
 Convención de coords: `lat`/`lon` (ver `geo_const`). Los POIs son listas de dicts con esas claves.
 """
 
+import functools
 import json
 import math
 import os
+import threading
 import time
 import urllib.parse
 import urllib.request
@@ -33,6 +35,7 @@ _DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 # bbox Valle de Aburrá (misma cobertura que build_poi): sur,oeste,norte,este.
 _VALLE_BBOX = (6.06, -75.70, 6.48, -75.28)
 _ULTIMO_GEOCODE = [0.0]  # timestamp del último request a Nominatim (rate-limit 1 req/s)
+_GEO_LOCK = threading.Lock()  # serializa geocodes concurrentes (FastAPI corre `def` en threadpool)
 
 
 def haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -80,16 +83,21 @@ def _leer_json(nombre_archivo: str) -> dict:
         return json.load(f)
 
 
+# Los archivos de datos son estáticos por proceso (se regeneran offline con los scripts build_* y
+# se recargan al reiniciar) → se memoizan. NO mutar los dicts/listas devueltos (son compartidos).
+@functools.lru_cache(maxsize=1)
 def cargar_metro() -> list[dict]:
     """Estaciones del Metro como lista de POIs `[{"nombre","linea","lat","lon"}]`."""
     return _leer_json(DATA_METRO_FILE)["estaciones"]
 
 
+@functools.lru_cache(maxsize=1)
 def cargar_centroides() -> dict[str, dict]:
     """Centroides por `clave_geocache(zona,ciudad)` → `{"lat","lon","metro"}`."""
     return _leer_json(DATA_CENTROIDES_FILE)["centroides"]
 
 
+@functools.lru_cache(maxsize=1)
 def cargar_pois() -> dict[str, list[dict]]:
     """POIs OSM por categoría (slug de `CERCANIA_KEYS`) → `[{"lat","lon"}]`.
 
@@ -100,8 +108,67 @@ def cargar_pois() -> dict[str, list[dict]]:
         return {}
     por_cat: dict[str, list[dict]] = {}
     for p in _leer_json(DATA_POI_FILE).get("pois", []):
-        por_cat.setdefault(p["categoria"], []).append({COORD_LAT_KEY: p["lat"], COORD_LON_KEY: p["lon"]})
+        # incluye nombre/brand: el backfill solo usa lat/lon, pero lugares_cerca necesita el NOMBRE.
+        por_cat.setdefault(p["categoria"], []).append(
+            {COORD_LAT_KEY: p["lat"], COORD_LON_KEY: p["lon"],
+             "nombre": p.get("nombre", ""), "brand": p.get("brand", "")})
     return por_cat
+
+
+# Radios sensatos por categoría (m) para "qué hay cerca". Metadata plana → mismos que la búsqueda.
+_RADIOS_LUGARES_M = {"metro": 1500, "supermercado": 1500, "colegio": 1500, "parque": 1500,
+                     "centro_comercial": 2500, "clinica": 2500, "universidad": 3000}
+# Nombre genérico cuando el POI no trae nombre ni brand.
+_NOMBRE_GENERICO = {"metro": "Estación de metro", "supermercado": "Supermercado",
+                    "centro_comercial": "Centro comercial", "colegio": "Colegio",
+                    "universidad": "Universidad", "parque": "Parque", "clinica": "Clínica"}
+
+
+def lugares_cerca(lat, lon, categoria=None, top: int = 3, radios: dict | None = None) -> dict[str, list[dict]]:
+    """Lugares REALES (con nombre) alrededor de (lat,lon), por categoría (E09·H8).
+
+    Para cada categoría (o solo `categoria` si se pide) calcula haversine a cada POI, filtra dentro
+    del radio de la categoría, ordena asc, deduplica por (etiqueta, coords) y toma `top`. La etiqueta
+    es `nombre` → `brand` → el genérico de la categoría. Devuelve
+    `{cat: [{"nombre": etiqueta, "dist_m": int, "lat": float, "lon": float}, …]}` **omitiendo las
+    categorías sin nada** en el radio (un inmueble fuera del Valle no tiene POIs → casi vacío = honesto).
+    `lat`/`lon` del POI sirven para pintar el pin y trazar la ruta en el mapa interactivo.
+    """
+    if lat is None or lon is None:
+        return {}
+    radios = radios or _RADIOS_LUGARES_M
+    pois = {"metro": cargar_metro(), **cargar_pois()}  # metro es una categoría más (sus POIs traen nombre)
+    cats = [categoria] if categoria else list(CERCANIA_KEYS)  # orden congelado
+    out: dict[str, list[dict]] = {}
+    for cat in cats:
+        lista = pois.get(cat)
+        if not lista:
+            continue
+        radio = radios.get(cat, 1500)
+        candidatos = []
+        for p in lista:
+            plat, plon = p.get(COORD_LAT_KEY), p.get(COORD_LON_KEY)
+            if plat is None or plon is None:
+                continue
+            d = haversine_m(lat, lon, plat, plon)
+            if d <= radio:
+                etiqueta = (p.get("nombre") or p.get("brand") or _NOMBRE_GENERICO.get(cat, "Lugar")).strip()
+                candidatos.append((round(d), etiqueta, round(plat, 6), round(plon, 6)))
+        candidatos.sort(key=lambda t: t[0])
+        vistos, res = set(), []
+        for d, etiqueta, pla, plo in candidatos:
+            # dedup por NOMBRE (conserva el más cercano): un mismo lugar mapeado como varios nodos
+            # OSM (p.ej. EAFIT ×5) no debe copar el top-N ni repetirse; así entran nombres distintos.
+            clave = etiqueta.lower()
+            if clave in vistos:
+                continue
+            vistos.add(clave)
+            res.append({"nombre": etiqueta, "dist_m": d, "lat": pla, "lon": plo})  # lat/lon: mapa + ruta
+            if len(res) >= top:
+                break
+        if res:
+            out[cat] = res
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -184,24 +251,71 @@ def _guardar_geocache(doc: dict, cache: dict) -> None:
         f.write("\n")
 
 
-def _nominatim(nombre: str):
-    """Consulta Nominatim con rate-limit 1 req/s y User-Agent propio. (lat,lon) | None."""
+# Conectores/muletillas que el fallback del geocoder quita para dejar el núcleo del nombre.
+# NO se quitan los artículos sueltos "el/la/los/las": son parte de muchos topónimos colombianos
+# (El Peñol, La Ceja, Las Palmas) y removerlos geocodificaría un nombre mutilado.
+_CONECTORES = (" cerca de ", " de la ", " de los ", " de las ", " del ", " sector ")
+
+
+def _con_region(q: str) -> str:
+    """Añade ', Colombia' **solo si** la query no trae ya país (no encimar región)."""
+    return q if "colombia" in q.lower() else f"{q}, Colombia"
+
+
+def _simplificar(nombre: str) -> str:
+    """Quita conectores/muletillas dejando el núcleo del nombre (fallback del geocoder).
+
+    Trabaja en minúsculas (Nominatim es case-insensitive): "el mirador de la piedra del peñol"
+    → "el mirador piedra peñol"; "cerca de La América" → "la américa". Conserva los artículos de
+    topónimo ("La Ceja" → "la ceja").
+    """
+    s = f" {nombre.lower()} "
+    prev = None
+    while s != prev:  # repetido: "de la" puede dejar otro conector pegado
+        prev = s
+        for c in _CONECTORES:
+            s = s.replace(c, " ")
+    return " ".join(s.split())
+
+
+def _consulta_nominatim(q: str) -> list:
+    """Una consulta a Nominatim con **rate-limit 1 req/s** y User-Agent propio. Lista (puede ser vacía).
+
+    Pide `limit=5` + `addressdetails=1` y deja que Nominatim ordene por `importance` (el mejor va 1º).
+    Toma `_GEO_LOCK` para que geocodes concurrentes (threadpool de FastAPI) se serialicen y respeten
+    el límite (lectura-espera-escritura del timestamp de forma atómica).
+    """
     from app.core.config import settings
-    espera = 1.1 - (time.time() - _ULTIMO_GEOCODE[0])
-    if espera > 0:
-        time.sleep(espera)
-    _ULTIMO_GEOCODE[0] = time.time()
-    url = settings.NOMINATIM_URL + "?" + urllib.parse.urlencode(
-        {"q": f"{nombre}, Colombia", "format": "json", "limit": 1, "countrycodes": "co"})
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": settings.NOMINATIM_USER_AGENT})
-        with urllib.request.urlopen(req, timeout=15) as r:
-            datos = json.loads(r.read().decode("utf-8"))
-    except Exception:
-        return None
+    with _GEO_LOCK:
+        espera = 1.1 - (time.time() - _ULTIMO_GEOCODE[0])
+        if espera > 0:
+            time.sleep(espera)
+        _ULTIMO_GEOCODE[0] = time.time()
+        url = settings.NOMINATIM_URL + "?" + urllib.parse.urlencode(
+            {"q": q, "format": "json", "limit": 5, "addressdetails": 1, "countrycodes": "co"})
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": settings.NOMINATIM_USER_AGENT})
+            with urllib.request.urlopen(req, timeout=15) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except Exception:
+            return []
+
+
+def _nominatim(nombre: str):
+    """Geocodifica con Nominatim + **fallback de simplificación** (una pasada). (lat,lon) | None.
+
+    1) Consulta el nombre tal cual (cualificado con región si no la trae). 2) Si da 0, reintenta
+    **una vez** con el nombre simplificado (sin muletillas). Toma el resultado de mayor `importance`.
+    """
+    datos = _consulta_nominatim(_con_region(nombre))
+    if not datos:
+        simp = _simplificar(nombre)
+        if simp and _norm(simp) != _norm(nombre):  # solo si realmente cambió
+            datos = _consulta_nominatim(_con_region(simp))
     if not datos:
         return None
-    return float(datos[0]["lat"]), float(datos[0]["lon"])
+    mejor = datos[0]  # Nominatim ya ordena por importance
+    return float(mejor["lat"]), float(mejor["lon"])
 
 
 def geocode_vivo(nombre, *, geocodificador=None) -> tuple[float, float] | None:

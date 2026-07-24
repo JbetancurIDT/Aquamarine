@@ -4,6 +4,7 @@ import { useChatSession, type Mensaje } from '../hooks/useChatSession'
 import type { LeadConMensajes, Mensaje as MensajeServidor } from '../api/types'
 import apiClient from '../api/client'
 import { PropertyCardList } from '../components/PropertyCard'
+import { MapaCard } from '../components/MapaCard'
 import { MarkdownMessage } from '../components/MarkdownMessage'
 
 function formatHHMM(date: Date): string {
@@ -33,6 +34,7 @@ function BurbujaMensaje({ mensaje }: { mensaje: Mensaje }) {
         {!esLead && mensaje.inmuebles && mensaje.inmuebles.length > 0 && (
           <PropertyCardList inmuebles={mensaje.inmuebles} />
         )}
+        {!esLead && mensaje.mapa && <MapaCard mapa={mensaje.mapa} />}
         <span className="text-xs px-1" style={{ color: 'var(--gray-soft)' }}>
           {formatHHMM(mensaje.timestamp)}
         </span>
