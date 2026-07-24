@@ -2,7 +2,7 @@
 tipo: moc
 audiencia: dev
 estado: en-progreso
-actualizado: 2026-07-22
+actualizado: 2026-07-24
 tags: [moc, area/desarrollo]
 ---
 
@@ -30,9 +30,10 @@ tags: [moc, area/desarrollo]
 | E06 | [[E06 - Handoff Asesor]] | Notificación + cambio de estado | ✅ `completado` (auto-asignación balanceada, takeover humano, chat en vivo, notificaciones escalonadas + reasignación) |
 | E07 | [[E07 - Demo, Seed y Pulido]] | Datos demo + guion técnico + fixes | ✅ `completado` (seed realista con inmuebles reales de Chroma, 3 asesores, e2e críticos, guion de demo) |
 | E08 | [[E08 - Agente de Métricas (Gerencia)]] | Agente para Claudia: métricas en lenguaje natural | ✅ `completado` (/performance + burbuja "Asistente" en /dashboard con Haiku + tool-use real) |
-| E09 | [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] | Cercanía: "cerca del metro / de un D1 / de la Clínica X" | 📋 `pendiente` (post-MVP · planeada 2026-07-22) |
+| E09 | [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] | Cercanía: "cerca del metro / de un D1 / de la Clínica X" | ✅ `completado` (post-MVP · cercanía DURA + nombre propio + lugares tolerantes + movilidad) |
+| E10 | [[E10 - Mapa de Inmuebles]] | Mapa del inventario + heatmap de demanda + mapa por propiedad con rutas | ✅ `completado` (post-MVP · Leaflet/OSM, rutas ORS→OSRM→recta) |
 
-> **E09** es la **primera épica post-MVP** (roadmap): búsqueda por proximidad geográfica. No estaba en el camino crítico de los 2 días; se planeó el 2026-07-22. CORE (Sprints 1-6) ≈ 0.5 día.
+> **E09 y E10** son las épicas **post-MVP** (no estaban en el camino crítico de los 2 días): E09 (búsqueda por proximidad, planeada 2026-07-22) y E10 (mapa de inmuebles). Ambas **entregadas y mergeadas a `master`** el 2026-07-23/24.
 
 ## Camino crítico (2 días)
 ```

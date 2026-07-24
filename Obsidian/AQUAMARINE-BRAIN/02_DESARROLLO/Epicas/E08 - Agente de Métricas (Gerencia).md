@@ -1,10 +1,10 @@
 ---
 tipo: epica
 audiencia: dev
-estado: pendiente
+estado: completado
 epica: E08
-actualizado: 2026-06-10
-tags: [area/desarrollo, comp/agente, comp/dashboard, stack/claude, estado/pendiente]
+actualizado: 2026-07-24
+tags: [area/desarrollo, comp/agente, comp/dashboard, stack/claude, estado/completado]
 ---
 
 # E08 — Agente de Métricas (Gerencia)

@@ -1,10 +1,10 @@
 ---
 tipo: epica
 audiencia: dev
-estado: pendiente
+estado: completado
 epica: E06
-actualizado: 2026-06-09
-tags: [area/desarrollo, comp/handoff, estado/pendiente]
+actualizado: 2026-07-24
+tags: [area/desarrollo, comp/handoff, estado/completado]
 ---
 
 # E06 — Handoff Asesor

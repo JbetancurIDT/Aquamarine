@@ -2,7 +2,7 @@
 tipo: log
 audiencia: ambos
 estado: en-progreso
-actualizado: 2026-06-11
+actualizado: 2026-07-24
 tags: [area/proyecto, riesgos]
 ---
 
@@ -21,6 +21,10 @@ tags: [area/proyecto, riesgos]
 | R05 | **Demo en vivo falla.** Dependencia de red/API en la presentación. | Alto | Plan B con datos seed + video de respaldo (ver [[Demo - Guion]]) |
 | R06 | **Coherencia con "no chatbot básico / omnicanal" del reto.** El MVP simula canales. | Medio | Sostener narrativa de arquitectura desacoplada + mock de origen (ver [[Alcance del MVP]]) |
 | R10 | **El barrido vive en el proceso del backend.** Las notificaciones escalonadas/reasignación dependen de que el proceso (lifespan FastAPI) esté vivo; si se reinicia, el reloj continúa desde los timestamps en BD pero no hay "catch-up" de ciclos perdidos. | Bajo (operativo) | El estado vive en BD (`asignado_en`/`notificaciones_count`), así que se retoma solo. Para demo, usar `NOTIF_SCALE` con intervalos cortos. A futuro: scheduler dedicado si se despliega multi-proceso. |
+| R11 | **Dependencia de fuentes geo en vivo (Overpass/Nominatim/GTFS).** Disponibilidad y rate limits de servicios públicos gratuitos (E09/E10). | Medio | Los datos se **materializan offline** en artefactos versionados (`geocache`/`metro`/`poi`) que se consumen en runtime; `geocode_vivo` respeta 1 req/s con caché; la ingesta es **falla-suave** (`[geo-skip]`) y nunca aborta por un fallo geo (ver [[Decisiones (Decision Log)]] D24) |
+| R12 | **Drift / versionado de los artefactos geo.** `geocache.json`/POIs/estaciones se desactualizan frente al mundo real; además `geocode_vivo` escribe entradas `lugar:*` en el `geocache.json` versionado → el archivo deriva con el uso. | Bajo | Fechar y regenerar periódicamente vía `build_metro`/`build_poi`/`build_geocache`; si se busca reproducibilidad, mover la caché runtime a un archivo aparte/gitignored (follow-up) |
+| R13 | **Dependencia de routing externo (ORS/OSRM).** El mapa por propiedad depende de servicios de ruteo de terceros. | Bajo | Cadena de fallback **ORS→OSRM→línea recta** (D23): OSRM público da rutas por calles sin API key y la recta garantiza respuesta; **la búsqueda no depende de rutas**, solo la visualización |
+| R14 | **Cobertura de coordenadas en Chroma.** Muchos inmuebles sin lat/lng precisa; se geocodifica por **centroide de barrio/municipio** (~1.5 km de error); todos los de una misma (zona,ciudad) comparten `dist_*_m`. | Bajo (honestidad por diseño) | **Piso de radio 1500 m** y filtro DURO que **omite** los inmuebles sin dato (D21); copy aproximado obligatorio ("a pocos minutos", nunca cifra exacta) |
 
 ## Bloqueos activos
 - _(ninguno)_

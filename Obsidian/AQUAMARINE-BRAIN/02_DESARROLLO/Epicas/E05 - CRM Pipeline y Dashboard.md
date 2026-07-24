@@ -1,10 +1,10 @@
 ---
 tipo: epica
 audiencia: dev
-estado: pendiente
+estado: completado
 epica: E05
-actualizado: 2026-06-09
-tags: [area/desarrollo, comp/dashboard, comp/crm, stack/react, estado/pendiente]
+actualizado: 2026-07-24
+tags: [area/desarrollo, comp/dashboard, comp/crm, stack/react, estado/completado]
 ---
 
 # E05 — CRM Pipeline y Dashboard

@@ -4,13 +4,13 @@ Este es el repositorio del **producto real** de Aquamarine: el agente de IA + CR
 para Aquamarine Group SAS (finca raíz de lujo). Repo git independiente del de documentación.
 
 > [!note] Estado actual
-> **Épicas E00–E07 completadas.** Backend completo: modelos Postgres, agente conversacional con tool
+> **Épicas E00–E10 completadas.** Backend completo: modelos Postgres, agente conversacional con tool
 > use, RAG semántico + búsqueda exacta, endpoints leads / asesores / métricas con filtros, handoff
 > automático con **balanceo por carga**, **takeover humano** (IA silenciada), **barrido** de
 > notificaciones + reasignación, `GET /metrics/asesores` + `/metrics/propiedades` (mock). Frontend:
 > `/chat` (+ banner de asesor humano), `/dashboard` (KPIs + funnel + donut + inventario + equipo),
 > `/pipeline` (Kanban), `/asesor/:id` (en-vivo + disponibilidad + campana), `/performance` (SLA).
-> **145 tests backend en verde.** Pendiente: Analyst (§4.5).
+> **~228 tests backend en verde.** Analyst/Insights construido (§4.5, `POST /insights/ask`). Post-MVP entregado y mergeado a `master`: **E09** (búsqueda por proximidad geográfica) y **E10** (mapa de inmuebles).
 
 ## Documentación por feature (convención)
 
@@ -33,13 +33,13 @@ actualiza su `<feature>.md` y enlázalo en esta tabla.**
 ## Dónde está el contexto del proyecto
 
 La **fuente de verdad** (negocio, alcance, arquitectura, épicas, modelo de datos) vive en la
-vault de Obsidian, en el repo hermano: `../Obsidian/AQUAMARINE-BRAIN/`. Antes de construir,
+vault de Obsidian, **dentro de este mismo repo**: `Obsidian/AQUAMARINE-BRAIN/`. Antes de construir,
 consulta especialmente:
 
 - `02_DESARROLLO/Arquitectura.md` — diseño del sistema y flujo del lead
 - `02_DESARROLLO/Stack Tecnológico.md` — librerías y decisiones por capa
 - `02_DESARROLLO/Modelo de Datos.md` — tablas
-- `02_DESARROLLO/Epicas/` — E00→E07, tareas con prompts listos para Claude Code
+- `02_DESARROLLO/Epicas/` — E00→E10, tareas con prompts listos para Claude Code
 - `01_PROYECTO/Alcance del MVP.md` — qué entra y qué no
 
 ## Stack previsto

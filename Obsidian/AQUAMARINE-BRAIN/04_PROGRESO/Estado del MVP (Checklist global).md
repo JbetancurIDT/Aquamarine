@@ -2,7 +2,7 @@
 tipo: log
 audiencia: ambos
 estado: en-progreso
-actualizado: 2026-07-22
+actualizado: 2026-07-24
 tags: [area/proyecto, progreso, checklist]
 ---
 
@@ -21,8 +21,14 @@ tags: [area/proyecto, progreso, checklist]
 - [x] **E07 — Demo, Seed y Pulido** → [[E07 - Demo, Seed y Pulido]] — *cerrada: `seed_demo.py` realista con **inmuebles reales de Chroma**, 3 asesores dinámicos, `cerrado_perdido` y casos `atendido_por_humano`; tests e2e críticos; guion + ejemplos de demo. Pendiente menor: correr el e2e en vivo con servicios arriba.*
 - [x] **E08 — Agente de Métricas (Gerencia)** → [[E08 - Agente de Métricas (Gerencia)]] — *cerrada: `/performance` (§4.4) + **burbuja "Asistente Aquamarine"** en `/dashboard` (§4.5) con Haiku + tool-use real (`insights_agent`/`insights_tools`/`/insights/ask` + `AquaChat.tsx`), presets vía `/` + texto libre, honesta fuera de alcance.*
 
-## Roadmap post-MVP (planeado)
-- [ ] **E09 — Búsqueda por Proximidad Geográfica** → [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] — *planeada 2026-07-22. El lead pide "cerca del metro / de un D1 / de la Clínica X" y Aqua filtra por cercanía (haversine radial, POI 100% OSM/Overpass + GTFS del Metro; foco Valle de Aburrá). 9 sprints (1-6 CORE ≈0.5 día, 7-9 STRETCH). Ver [[Decisiones (Decision Log)]] D21.*
+## Post-MVP entregado (mergeado a `master`)
+- [x] **E09 — Búsqueda por Proximidad Geográfica** → [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] — *entregada 2026-07-23/24. Aqua filtra por cercanía (haversine radial, POI OSM/Overpass + GTFS del Metro, **filtro DURO y honesto** — metro solo en el Valle de Aburrá), con **fallback por nombre propio** ("cerca de EAFIT"), lugares tolerantes (coloquial→oficial) y **preferencia de movilidad** (re-ranking suave). Ver [[Decisiones (Decision Log)]] D21/D24/D25.*
+- [x] **E10 — Mapa de Inmuebles** → [[E10 - Mapa de Inmuebles]] — *entregada 2026-07-23/24. `/mapa` (Leaflet+OSM) con todo el inventario + **heatmap de demanda**, y `/mapa/propiedad/:codigo` **público** con POIs cercanos y **rutas por calles** (ORS→OSRM→recta, sin API key). Ver D22/D23.*
+
+### Roadmap Fase 2 (pendiente)
+- [ ] Multitenancy + licencias.
+- [ ] Tiempo de viaje / isócronas como **filtro** de búsqueda (hoy solo visualización en el mapa).
+- [ ] Tests de frontend; verificación visual (eyeball) del mapa y la ruta animada.
 
 ## Hitos de la demo (lo que debe funcionar para presentar)
 - [x] El cliente puede conversar con el asistente (chat web). *(E04 — chat funcional end-to-end)*
@@ -37,4 +43,4 @@ tags: [area/proyecto, progreso, checklist]
 agente Aqua, chat del lead, dashboard + pipeline + performance, handoff completo (auto-asignación,
 takeover humano, notificaciones escalonadas), seed realista con inmuebles reales, y la burbuja de
 métricas para gerencia. Pendiente solo de **verificación e2e en vivo** (servicios arriba) y deuda
-menor (tests de frontend, validación fina de paleta). Roadmap post-MVP: multitenancy + licencias (Fase 2).
+menor (tests de frontend, validación fina de paleta). **Post-MVP entregado y mergeado a `master`:** E09 (búsqueda por proximidad geográfica) y E10 (mapa de inmuebles). Roadmap Fase 2: multitenancy + licencias, tiempo de viaje como filtro.

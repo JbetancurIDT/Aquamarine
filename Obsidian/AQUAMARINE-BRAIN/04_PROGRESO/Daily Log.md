@@ -2,7 +2,7 @@
 tipo: log
 audiencia: ambos
 estado: en-progreso
-actualizado: 2026-07-22
+actualizado: 2026-07-24
 tags: [area/proyecto, log, progreso]
 ---
 
@@ -61,6 +61,19 @@ tags: [area/proyecto, log, progreso]
 ## 2026-07-22 — Planeación E09 (Búsqueda por Proximidad Geográfica, post-MVP)
 - [planeación] **Chequeo de datos geo (read-only sobre Chroma):** de 50 inmuebles, solo 2/50 con lat/lng (una sintética) → ~0 coords reales; 3/50 con dirección; 50/50 con zona+ciudad; 48/50 en Antioquia (Medellín 19, Envigado 11, Rionegro 6, resto disperso), ~32 en el Valle de Aburrá. → la geocodificación será por **centroide de (zona,ciudad)**.
 - [E09] **Épica planeada con workflow multi-agente** (4 diseños en paralelo + revisión adversarial de factibilidad + síntesis). Decisiones: v1 = **haversine radial en km** (tiempo de viaje = Fase 2), POI **100% OSM/Overpass + GTFS del Metro**, ambos scopes (categorías fijas + fallback por nombre propio), foco Valle de Aburrá. 9 sprints (1-6 CORE ≈0.5 día, 7-9 STRETCH), radio honesto mínimo **1.5 km**, cercanía como **filtro duro** (clave ausente = no matchea = honestidad). Ver [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] y [[Decisiones (Decision Log)]] **D21**.
+
+## 2026-07-23 — E09 implementación (CORE + STRETCH) + Mapa de inmuebles
+- [E09] **CORE (Sprints 1–6) shipped.** `geo_const.py` (7 slugs `dist_<cat>_m`, `clave_geocache`, convención lat/lon), `geo.py` (haversine + distancias por categoría), `data/` (metro + centroides), `seed_geo.py` (backfill idempotente que preserva `titulo/precio/imagenes` — verificado el merge/None de chromadb 1.5.9, pineado), `schemas/inmueble.py` (+7 `dist_*_m` planos), `search.py` (cercanía como **filtro DURO** vía `cerca_de`/`radio_km`, piso honesto 1500 m), `tools.py` + `prompts.py` (mapeo de frases + honestidad "el metro solo cubre el Valle de Aburrá"). T09.1.1→T09.6.2 ✅. Ver [[Decisiones (Decision Log)]] **D21**.
+- [E09] **STRETCH (Sprints 7–9) shipped.** Fuentes en vivo materializadas en artefactos: GTFS → **44** estaciones (`build_metro`), Overpass → **3963** POIs (`build_poi`), Nominatim → **38** pares (`build_geocache`); **fallback por nombre propio** (`geocode_vivo`/`cerca_de_lugar`/`buscar_por_lugar`); hook de ingesta **falla-suave** `[geo-skip]` (`enriquecer_inmueble`, fichas nuevas nacen con geo). T09.7.1→T09.9.1 ✅. Ver **D24**.
+- [E10] **Feature Mapa shipped.** `/mapa` (Leaflet + OSM) con pines de todo el inventario y popup `PropertyCard`; `GET /rag/inmuebles/mapa`; heatmap de demanda por zona (`demanda.py`/`leads_zona`). Ver **D22** y [[E10 - Mapa de Inmuebles]].
+- [docs] Docs de feature `geo.md` y `mapa.md` (raíz) + filas en `CLAUDE.md`. **~228 tests backend en verde** (antes 145).
+
+## 2026-07-24 — Pulidos geo/mapa (rutas · movilidad · foco · tolerancia) + merge a master
+- [E10] **Rutas por propiedad.** `GET /geo/ruta` con cadena **ORS→OSRM→línea recta** (rutas por calles sin necesitar API key), `MapaPropiedadPage` (`/mapa/propiedad/:codigo`, pines por categoría, click POI→ruta) + `RutaAnimada`. Ver **D23**.
+- [E09] **H7 lugares tolerantes (S10)** — geocoder robusto que traduce lo coloquial a lo oficial ("piedra del peñol"→"Mirador del Peñol"), cualifica municipio/depto y **pregunta cuando es ambiguo**. **H8 cercanía nombrada + foco (S11)** — tool nueva `lugares_cerca` (nombres reales de POIs por categoría) y seguimiento de **UNA** propiedad sin re-listar.
+- [agente] **Preferencia de movilidad (S12 · D25)** = re-ranking **SUAVE** (`perfil.movilidad`; reordena por preferencias cumplidas, nunca excluye). Chat con **mapa-como-tarjeta** (`[[MAPA:codigo]]`→`MapaCard`); prompt fija `tipo_negocio` (venta en lujo, no se cuelan arriendos).
+- [review] Workflows adversariales sobre H7/H8/mapa/chat-cards con hallazgos aplicados. **Merge de `feat/e09-geo` → `master`** (todo integrado). **Pendiente:** verificación visual (eyeball) del mapa y la ruta animada por el usuario.
+- [docs] Cerebro al día: **D22–D25**, **R11–R14**, épicas **[[E09 - Búsqueda por Proximidad Geográfica (Geo)]]** (completada, + S10/S11/S12) y **[[E10 - Mapa de Inmuebles]]** (nueva), [[Estado del MVP (Checklist global)]] y [[🗺️ MOC - Desarrollo]] actualizados.
 
 ---
 > **Cómo usar:** al cerrar una tarea, agrega una línea aquí y marca el checkbox en su épica. Sube `actualizado` en el frontmatter.

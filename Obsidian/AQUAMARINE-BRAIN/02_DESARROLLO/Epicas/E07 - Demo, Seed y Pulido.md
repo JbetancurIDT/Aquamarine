@@ -1,10 +1,10 @@
 ---
 tipo: epica
 audiencia: dev
-estado: pendiente
+estado: completado
 epica: E07
-actualizado: 2026-06-09
-tags: [area/desarrollo, comp/demo, estado/pendiente]
+actualizado: 2026-07-24
+tags: [area/desarrollo, comp/demo, estado/completado]
 ---
 
 # E07 — Demo, Seed y Pulido
