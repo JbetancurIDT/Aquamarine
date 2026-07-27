@@ -25,6 +25,9 @@ tags: [area/proyecto, progreso, checklist]
 - [x] **E09 — Búsqueda por Proximidad Geográfica** → [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] — *entregada 2026-07-23/24. Aqua filtra por cercanía (haversine radial, POI OSM/Overpass + GTFS del Metro, **filtro DURO y honesto** — metro solo en el Valle de Aburrá), con **fallback por nombre propio** ("cerca de EAFIT"), lugares tolerantes (coloquial→oficial) y **preferencia de movilidad** (re-ranking suave). Ver [[Decisiones (Decision Log)]] D21/D24/D25.*
 - [x] **E10 — Mapa de Inmuebles** → [[E10 - Mapa de Inmuebles]] — *entregada 2026-07-23/24. `/mapa` (Leaflet+OSM) con todo el inventario + **heatmap de demanda**, y `/mapa/propiedad/:codigo` **público** con POIs cercanos y **rutas por calles** (ORS→OSRM→recta, sin API key). Ver D22/D23.*
 
+### Post-MVP planeado (siguiente)
+- [ ] **E11 — Clasificación de Intención de Compra** → [[E11 - Clasificación de Intención de Compra (Comprador vs Curioso)]] — *planeada 2026-07-24 (D26). Distingue **compradores** reales de **curiosos ("lolos")** que solo preguntan precio, y mide el **% por zona/propiedad**. Señal `perfil.intencion` que infiere Aqua + derivación para leads viejos + evento de auditoría + métrica segmentada. Sin construir; handoff listo para el Dev.*
+
 ### Roadmap Fase 2 (pendiente)
 - [ ] Multitenancy + licencias.
 - [ ] Tiempo de viaje / isócronas como **filtro** de búsqueda (hoy solo visualización en el mapa).
