@@ -20,17 +20,22 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session, selectinload
 
+from app.agent.intencion import INTENCIONES, derivar_intencion
 from app.api.deps import tenant_actual
+from app.core.config import settings
 from app.core.db import get_db
 from app.core.enums import Origen, Temperatura
 from app.models.asesor import Asesor
 from app.models.evento import Evento
 from app.models.lead import Lead
 from app.models.tenant import Tenant
+from app.rag.chroma_client import COLLECTION_NAME, get_chroma_client
+from app.rag.search import _cumple_ubicacion, _norm
 from app.schemas.metrics import (
     AsesorMetrics,
     Conversion,
     FunnelStep,
+    IntencionMetrics,
     LeadsCalientes,
     MetricsOverview,
     NegociosGanados,
@@ -273,3 +278,121 @@ def metrics_propiedades(
         cerradas=12,
         valor_cerrado_cop=28_500_000_000,
     )
+
+
+# ── E11: intención de compra (comprador vs curioso), segmentada ──────────────
+
+def _clasificar_intencion(perfil: dict, temperatura: str) -> str:
+    """Intención del lead: la que Aqua ya infirió (`perfil.intencion`) o el fallback determinista."""
+    perfil = perfil or {}
+    return perfil.get("intencion") or derivar_intencion(perfil, temperatura)
+
+
+def _pct(num: int, den: int) -> float:
+    return round(num / den, 4) if den > 0 else 0.0
+
+
+def _intencion_metrics(leads: list, propiedades: list[dict]) -> dict:
+    """Agrega la intención al vuelo: global + por zona (match tolerante) + por propiedad. PURA.
+
+    - `leads`: objetos con `.perfil` (dict) y `.temperatura` (str).
+    - `propiedades`: metadatas del inventario (Chroma) — definen las zonas "reales" y los títulos.
+    Un lead con zona que no matchea el inventario (p. ej. "cerca del metro") cuenta en el global
+    pero **no** en ninguna zona (mismo criterio tolerante del heatmap de E10).
+    """
+    propiedades = propiedades or []
+
+    # Clasifica cada lead una sola vez.
+    clasificados: list[tuple[dict, str]] = []
+    conteo_global = {k: 0 for k in INTENCIONES}
+    for lead in leads:
+        perfil = lead.perfil or {}
+        intn = _clasificar_intencion(perfil, lead.temperatura)
+        clasificados.append((perfil, intn))
+        conteo_global[intn] += 1
+
+    n = len(leads)
+    por_intencion = {k: _rate(conteo_global[k], n).model_dump() for k in INTENCIONES}
+
+    # ── por_zona: zonas canónicas del inventario; leads asignados por match tolerante ──
+    zonas: dict[str, dict] = {}
+    for meta in propiedades:
+        clave = _norm(meta.get("zona"))
+        if not clave:
+            continue
+        zonas.setdefault(clave, {"zona": meta.get("zona"), "conteo": {k: 0 for k in INTENCIONES}})
+
+    for perfil, intn in clasificados:
+        lead_zona = perfil.get("zona")
+        if not lead_zona:
+            continue
+        # Match tolerante SOLO contra la ZONA del inventario (no contra título/ciudad/dirección):
+        # un lead de "El Poblado" no debe caer en "El Tesoro"/"Castropol" solo porque el título de esas
+        # propiedades mencione "El Poblado". Así tampoco cuenta un lead de ciudad ("Medellín") en cada
+        # barrio. `{"zona": label}` reusa `_cumple_ubicacion` (misma tolerancia acentos/tokens ≥4).
+        for bucket in zonas.values():
+            if _cumple_ubicacion({"zona": bucket["zona"]}, lead_zona):
+                bucket["conteo"][intn] += 1
+
+    por_zona = []
+    for bucket in zonas.values():
+        c = bucket["conteo"]
+        total = c["comprador"] + c["explorando"] + c["curioso"]
+        if total == 0:
+            continue  # zona del inventario sin leads interesados → no se lista
+        por_zona.append({
+            "zona": bucket["zona"], "comprador": c["comprador"], "explorando": c["explorando"],
+            "curioso": c["curioso"], "total": total,
+            "pct_comprador": _pct(c["comprador"], total), "pct_curioso": _pct(c["curioso"], total),
+        })
+    por_zona.sort(key=lambda z: -z["total"])
+
+    # ── por_propiedad: agrupa por inmueble_interes (título del inventario si existe) ──
+    titulo_por_codigo = {
+        str(m["inmueble_id"]): m.get("titulo") for m in propiedades if m.get("inmueble_id")
+    }
+    props: dict[str, dict] = {}
+    for perfil, intn in clasificados:
+        cod = perfil.get("inmueble_interes")
+        if not cod:
+            continue
+        props.setdefault(str(cod), {k: 0 for k in INTENCIONES})[intn] += 1
+
+    por_propiedad = []
+    for cod, c in props.items():
+        total = c["comprador"] + c["explorando"] + c["curioso"]
+        por_propiedad.append({
+            "inmueble_interes": cod, "titulo": titulo_por_codigo.get(cod),
+            "comprador": c["comprador"], "explorando": c["explorando"], "curioso": c["curioso"],
+            "total": total,
+            "pct_comprador": _pct(c["comprador"], total), "pct_curioso": _pct(c["curioso"], total),
+        })
+    por_propiedad.sort(key=lambda p: -p["total"])
+
+    return {"total_leads": n, "por_intencion": por_intencion,
+            "por_zona": por_zona, "por_propiedad": por_propiedad}
+
+
+def _cargar_inventario() -> list[dict]:
+    """Metadatas del inventario del tenant desde Chroma (para las zonas/títulos). `[]` si falla."""
+    try:
+        col = get_chroma_client().get_or_create_collection(COLLECTION_NAME)
+        res = col.get(where={"tenant_id": {"$eq": settings.DEFAULT_TENANT_ID}}, include=["metadatas"])
+        return res.get("metadatas") or []
+    except Exception:  # noqa: BLE001 — sin inventario el global/propiedad siguen sirviendo
+        return []
+
+
+def calcular_intencion(db: Session, tenant: Tenant) -> dict:
+    """Carga los leads del tenant + el inventario y agrega la intención. Reusable (endpoint + insights)."""
+    leads = db.query(Lead).filter(Lead.tenant_id == tenant.id).all()
+    return _intencion_metrics(leads, _cargar_inventario())
+
+
+@router.get("/intencion", response_model=IntencionMetrics)
+def metrics_intencion(
+    db: Session = Depends(get_db),
+    tenant: Tenant = Depends(tenant_actual),
+) -> IntencionMetrics:
+    """% comprador vs curioso (E11), global + por zona + por propiedad, calculado al vuelo."""
+    return calcular_intencion(db, tenant)

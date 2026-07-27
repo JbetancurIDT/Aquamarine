@@ -72,3 +72,36 @@ class PropiedadesMetrics(BaseModel):
     en_negociacion: int
     cerradas: int
     valor_cerrado_cop: int
+
+
+# ── E11: intención de compra (comprador vs curioso), segmentada ──────────────
+
+class IntencionZona(BaseModel):
+    """Desglose de intención de una zona (leads que buscan ahí, match tolerante)."""
+    zona: str
+    comprador: int
+    explorando: int
+    curioso: int
+    total: int
+    pct_comprador: float  # 0–1
+    pct_curioso: float    # 0–1
+
+
+class IntencionPropiedad(BaseModel):
+    """Desglose de intención de los leads enfocados en una propiedad (`inmueble_interes`)."""
+    inmueble_interes: str
+    titulo: str | None = None
+    comprador: int
+    explorando: int
+    curioso: int
+    total: int
+    pct_comprador: float
+    pct_curioso: float
+
+
+class IntencionMetrics(BaseModel):
+    """% comprador vs curioso: global + por zona + por propiedad (todo al vuelo)."""
+    total_leads: int
+    por_intencion: dict[str, Rate]  # {"comprador": Rate, "explorando": Rate, "curioso": Rate}
+    por_zona: list[IntencionZona]
+    por_propiedad: list[IntencionPropiedad]

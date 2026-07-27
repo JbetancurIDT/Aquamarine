@@ -35,6 +35,9 @@ class PerfilExtraido(BaseModel):
     plazo: Optional[Literal["corto", "medio", "largo"]] = None  # corto = decide en <3 meses
     notas: Optional[str] = None
     interes_urgencia: Optional[Literal["alta", "media", "baja"]] = None
+    # Intención de compra inferida del tono/contenido (E11 · D26). Eje NUEVO e independiente del
+    # scoring/temperatura: Aqua la INFIERE, no interroga al lead.
+    intencion: Optional[Literal["comprador", "explorando", "curioso"]] = None
     inmueble_interes: Optional[str] = None  # inmueble_id si se enfocó en uno específico
     origen: Optional[str] = None  # canal si el cliente dijo cómo nos conoció
     movilidad: Optional[str] = None  # cómo se mueve el lead: carro|moto|metro|bus|a_pie|bici|desde_casa|…
@@ -53,6 +56,11 @@ Normalización:
 (p.ej. "5 mil millones" → 5000000000).
 - `interes_urgencia`: "alta" si suena decidido/urgente o pide visitar ya; "media" si \
 interesado sin afán; "baja" si solo explora.
+- `intencion`: intención de compra INFERIDA del tono/contenido (nunca preguntes por ella). \
+"curioso" = solo pregunta precio/info general, sin presupuesto, "solo estoy mirando" (plazo largo), \
+sin contacto ni visita. "comprador" = da presupuesto y plazo corto/medio, o pide visita/cita o \
+hablar con un asesor, o se enfoca en un inmueble concreto con urgencia. "explorando" = intermedio \
+(algunas señales como zona+tipo, pero sin compromiso). Si no hay señales, null.
 - `movilidad`: cómo se mueve el cliente si lo menciona, normalizado a una palabra: \
 "carro" | "moto" | "metro" | "bus" | "a_pie" | "bici" | "desde_casa" (teletrabajo). Si no lo dice, null.
 - `pide_humano`: true si el cliente pide hablar con una persona o asesor real.
@@ -77,6 +85,18 @@ _EXTRACTION_TOOL: dict = {
             "plazo": {"type": "string", "enum": ["corto", "medio", "largo"]},
             "notas": {"type": "string"},
             "interes_urgencia": {"type": "string", "enum": ["alta", "media", "baja"]},
+            "intencion": {
+                "type": "string",
+                "enum": ["comprador", "explorando", "curioso"],
+                "description": (
+                    "Intención de compra inferida del tono/contenido (NO preguntar). "
+                    "curioso = solo pregunta precio/info general, sin presupuesto, 'solo mirando' "
+                    "(plazo largo), sin contacto ni visita. "
+                    "comprador = da presupuesto y plazo corto/medio, o pide visita/cita/asesor, "
+                    "o se enfoca en un inmueble concreto con urgencia. "
+                    "explorando = intermedio (algunas señales como zona+tipo, sin compromiso)."
+                ),
+            },
             "inmueble_interes": {"type": "string"},
             "origen": {"type": "string"},
             "movilidad": {"type": "string"},
@@ -123,9 +143,15 @@ def extraer_perfil(historial: list[dict]) -> PerfilExtraido:
 
 # Campos del PerfilExtraido que viven en el jsonb `lead.perfil` (no en columnas del lead).
 # `movilidad` es preferencia (NO califica al lead — no está en _CAMPOS_CALIFICAN del orquestador).
+# `interes_urgencia` (E11): antes se extraía y se DESCARTABA; ahora se persiste para el análisis.
+# OJO `intencion` (E11): NO va aquí a propósito. Su persistencia la hace `lead_service.registrar_intencion`
+# (único escritor de `perfil['intencion']`) para poder emitir el evento de auditoría SOLO al cambiar;
+# si `fusionar_perfil` la pre-escribiera, `registrar_intencion` nunca vería un cambio y el evento no se
+# emitiría. Aun así `perfil['intencion']` queda persistida cada turno (por `registrar_intencion`).
 _CAMPOS_PERFIL = (
     "tipo", "zona", "ciudad", "presupuesto_min", "presupuesto_max",
     "habitaciones", "plazo", "notas", "inmueble_interes", "movilidad",
+    "interes_urgencia",
 )
 
 

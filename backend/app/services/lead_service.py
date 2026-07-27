@@ -107,6 +107,39 @@ def set_score(db: Session, lead: Lead, score, temperatura) -> Lead:
     return lead
 
 
+def registrar_intencion(db: Session, lead: Lead, intencion: str | None) -> Evento | None:
+    """Registra la intención de compra del lead (E11 · T11.3.1) y audita el cambio.
+
+    Único escritor de `perfil['intencion']`: fija el valor y emite `intencion_clasificada`
+    **solo cuando cambia** (evita un evento por turno). El payload lleva zona/ciudad/propiedad
+    del perfil ya fusionado para poder re-segmentar el pasado desde `eventos`.
+
+    - `intencion=None` (Aqua no pudo clasificar este turno) → no hace nada.
+    - `intencion` igual a la ya guardada → no emite (ni escribe de nuevo).
+
+    Devuelve el `Evento` emitido, o `None` si no hubo cambio. Emite el evento aquí (patrón del
+    repo: los eventos los emite `lead_service`, no los routers).
+    """
+    if not intencion:
+        return None
+
+    perfil = dict(lead.perfil or {})
+    if perfil.get("intencion") == intencion:
+        return None  # sin cambio → no se emite
+
+    perfil["intencion"] = intencion
+    lead.perfil = perfil  # reasigna (JSONB no rastrea mutación in-place)
+    evento = _emitir_evento(db, lead, "intencion_clasificada", {
+        "intencion": intencion,
+        "zona": perfil.get("zona"),
+        "ciudad": perfil.get("ciudad"),
+        "inmueble_interes": perfil.get("inmueble_interes"),
+    })
+    db.commit()
+    db.refresh(lead)
+    return evento
+
+
 def set_asesor(db: Session, lead: Lead, asesor_id) -> Lead:
     """Asigna o desasigna asesor al lead; emite `asesor_asignado`.
 

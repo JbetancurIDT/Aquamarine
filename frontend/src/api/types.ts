@@ -103,3 +103,33 @@ export type InsightsResponse = {
   respuesta: string
   datos: Record<string, unknown> | null
 }
+
+// ── E11: intención de compra (comprador vs curioso) ─────────────────────────
+
+export type IntencionZona = {
+  zona: string
+  comprador: number
+  explorando: number
+  curioso: number
+  total: number
+  pct_comprador: number
+  pct_curioso: number
+}
+
+export type IntencionPropiedad = {
+  inmueble_interes: string
+  titulo: string | null
+  comprador: number
+  explorando: number
+  curioso: number
+  total: number
+  pct_comprador: number
+  pct_curioso: number
+}
+
+export type IntencionMetrics = {
+  total_leads: number
+  por_intencion: Record<string, Rate>
+  por_zona: IntencionZona[]
+  por_propiedad: IntencionPropiedad[]
+}

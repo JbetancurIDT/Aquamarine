@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import apiClient from '../api/client'
-import type { Asesor, AsesorMetrics, MetricsOverview, PropiedadesMetrics, Rate } from '../api/types'
+import type {
+  Asesor, AsesorMetrics, IntencionMetrics, MetricsOverview, PropiedadesMetrics, Rate,
+} from '../api/types'
 import { AquaChat } from '../components/AquaChat'
 import { ConsolaNav } from '../components/ConsolaNav'
 
@@ -216,6 +218,101 @@ function BarraOrigen({ origen, count, maxCount }: { origen: string; count: numbe
 }
 
 // ---------------------------------------------------------------------------
+// Tile de intención de compra (E11): comprador vs curioso ("lolo")
+// ---------------------------------------------------------------------------
+
+const INTENCION_COLOR: Record<string, string> = {
+  comprador: '#2D7A4F',
+  explorando: 'var(--warm)',
+  curioso: 'var(--charcoal)',
+}
+
+const INTENCION_LABEL: Record<string, string> = {
+  comprador: 'Comprador',
+  explorando: 'Explorando',
+  curioso: 'Curioso',
+}
+
+const INTENCION_ORDEN = ['comprador', 'explorando', 'curioso']
+
+function IntencionTile({ data }: { data: IntencionMetrics | null }) {
+  const total = data?.total_leads ?? 0
+  const segs = INTENCION_ORDEN.map(k => ({
+    key: k,
+    rate: data?.por_intencion[k] ?? { pct: 0, num: 0, den: 0 },
+  }))
+  const topZonas = data
+    ? [...data.por_zona].filter(z => z.total > 0).sort((a, b) => b.pct_curioso - a.pct_curioso).slice(0, 5)
+    : []
+
+  return (
+    <div className="mt-4 p-4 rounded-2xl border"
+      style={{ background: 'var(--card)', borderColor: 'var(--line)' }}>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold"
+          style={{ color: 'var(--gray-soft)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Compradores vs Curiosos
+        </p>
+        <span className="text-[10px]" style={{ color: 'var(--gray-soft)' }}>{total} leads</span>
+      </div>
+
+      {total === 0 ? (
+        <p className="text-xs" style={{ color: 'var(--gray-soft)' }}>Sin datos</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {/* Barra apilada global + leyenda */}
+          <div>
+            <div className="flex w-full rounded-full overflow-hidden"
+              style={{ height: '10px', background: 'var(--line-soft)' }}>
+              {segs.map(s => s.rate.pct > 0 && (
+                <div key={s.key}
+                  style={{ width: `${s.rate.pct * 100}%`, height: '100%', background: INTENCION_COLOR[s.key] }} />
+              ))}
+            </div>
+            <div className="flex flex-col gap-1.5 mt-3">
+              {segs.map(s => (
+                <div key={s.key} className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                    style={{ background: INTENCION_COLOR[s.key] }} />
+                  <span className="text-xs" style={{ color: 'var(--ink)' }}>{INTENCION_LABEL[s.key]}</span>
+                  <span className="text-xs font-mono ml-auto pl-2" style={{ color: 'var(--gray-soft)' }}>
+                    {s.rate.num} ({(s.rate.pct * 100).toFixed(0)}%)
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Top zonas por % de curiosos */}
+          <div>
+            <p className="text-xs mb-2" style={{ color: 'var(--gray-soft)' }}>Zonas con más curiosos</p>
+            {topZonas.length === 0 ? (
+              <p className="text-xs" style={{ color: 'var(--gray-soft)' }}>Sin zonas con datos</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {topZonas.map(z => (
+                  <div key={z.zona} className="flex items-center gap-2">
+                    <span className="text-xs w-28 truncate flex-shrink-0" title={z.zona}
+                      style={{ color: 'var(--ink)' }}>{z.zona}</span>
+                    <div className="flex-1 rounded-full overflow-hidden"
+                      style={{ height: '6px', background: 'var(--line-soft)' }}>
+                      <div style={{ width: `${z.pct_curioso * 100}%`, height: '100%', background: 'var(--charcoal)', borderRadius: 'inherit' }} />
+                    </div>
+                    <span className="text-xs w-10 text-right font-mono" style={{ color: 'var(--gray-soft)' }}>
+                      {(z.pct_curioso * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // DashboardPage — panel de gerencia / métricas
 // ---------------------------------------------------------------------------
 
@@ -231,6 +328,7 @@ export default function DashboardPage() {
   const [asesores, setAsesores] = useState<Asesor[]>([])
   const [propiedades, setPropiedades] = useState<PropiedadesMetrics | null>(null)
   const [asesorMetrics, setAsesorMetrics] = useState<AsesorMetrics[]>([])
+  const [intencion, setIntencion] = useState<IntencionMetrics | null>(null)
   const [cargando, setCargando] = useState(true)
 
   // Filtros
@@ -279,6 +377,8 @@ export default function DashboardPage() {
         .then(({ data }) => setPropiedades(data)).catch(() => {})
       apiClient.get<AsesorMetrics[]>('/metrics/asesores')
         .then(({ data }) => setAsesorMetrics(data)).catch(() => {})
+      apiClient.get<IntencionMetrics>('/metrics/intencion')
+        .then(({ data }) => setIntencion(data)).catch(() => {})
     }
     cargarExtras()
     const id = setInterval(cargarExtras, 6000)
@@ -510,6 +610,9 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+
+            {/* Compradores vs Curiosos (E11) — global, sin filtros */}
+            <IntencionTile data={intencion} />
 
             {/* Inventario de propiedades (datos de muestra) */}
             <div

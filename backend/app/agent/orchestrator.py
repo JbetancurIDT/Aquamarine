@@ -255,6 +255,10 @@ def responder(db: Session, lead: Lead, mensaje_usuario: str) -> dict:
         extraido = extraer_perfil(historial)
         fusionar_perfil(db, lead, extraido)
 
+        # Intención de compra (E11): eje independiente del scoring. Se registra tras fusionar
+        # (para que el payload lleve la zona/propiedad ya actualizada) y solo emite al cambiar.
+        lead_service.registrar_intencion(db, lead, extraido.intencion)
+
         if extraido.pide_humano:
             # Handoff POR SOLICITUD: no se bloquea por datos faltantes (Aqua ya pidió
             # nombre/contacto por el system prompt; procede con lo que haya).

@@ -25,7 +25,9 @@ from app.api.metrics import (
     _rank_efectivo,
     _rate,
     _valor_lead_cop,
+    calcular_intencion,
 )
+from app.rag.search import _cumple_ubicacion
 
 # ---------------------------------------------------------------------------
 # Definiciones de herramientas (para la API de Anthropic)
@@ -70,6 +72,25 @@ TOOLS: list[dict] = [
         "name": "distribucion_leads",
         "description": "Devuelve la distribución de leads por temperatura, por origen y por estado.",
         "input_schema": {"type": "object", "properties": {}, "required": []},
+    },
+    {
+        "name": "intencion_por_zona",
+        "description": (
+            "Devuelve la intención de compra de los leads: % comprador vs explorando vs curioso "
+            "('lolo'/'cale'), global y desglosado por zona y por propiedad. Sirve para responder "
+            "'¿cuántos son curiosos en El Poblado?' o '¿en qué zonas hay más curiosos?'. "
+            "Param opcional `zona` para filtrar a una zona (match tolerante, p. ej. 'El Poblado')."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "zona": {
+                    "type": "string",
+                    "description": "Zona a consultar (opcional). Omítela para el global + todas las zonas.",
+                }
+            },
+            "required": [],
+        },
     },
 ]
 
@@ -243,6 +264,24 @@ def ejecutar_distribucion_leads(db: Session, tenant: Tenant) -> dict:
     }
 
 
+def ejecutar_intencion(db: Session, tenant: Tenant, zona: str | None = None) -> dict:
+    """Intención de compra (E11): global + por zona/propiedad, o filtrada a una zona pedida.
+
+    Reusa `calcular_intencion` (misma lógica que `GET /metrics/intencion`). Si se pasa `zona`,
+    filtra `por_zona` a los buckets que la matchean de forma tolerante (p. ej. 'El Poblado' → 'Poblado').
+    """
+    data = calcular_intencion(db, tenant)
+    if not zona:
+        return data
+    zonas = [z for z in data["por_zona"] if _cumple_ubicacion({"zona": z["zona"]}, zona)]
+    return {
+        "zona_consultada": zona,
+        "total_leads": data["total_leads"],
+        "por_intencion_global": data["por_intencion"],
+        "por_zona": zonas,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Dispatcher
 # ---------------------------------------------------------------------------
@@ -257,4 +296,6 @@ def ejecutar_tool(nombre: str, inputs: dict, db: Session, tenant: Tenant) -> dic
         return ejecutar_resumen_mensual(db, tenant, meses=inputs.get("meses", 12))
     if nombre == "distribucion_leads":
         return ejecutar_distribucion_leads(db, tenant)
+    if nombre == "intencion_por_zona":
+        return ejecutar_intencion(db, tenant, zona=inputs.get("zona"))
     return {"error": f"Tool desconocida: {nombre}"}
