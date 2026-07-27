@@ -26,7 +26,7 @@ tags: [area/proyecto, progreso, checklist]
 - [x] **E10 — Mapa de Inmuebles** → [[E10 - Mapa de Inmuebles]] — *entregada 2026-07-23/24. `/mapa` (Leaflet+OSM) con todo el inventario + **heatmap de demanda**, y `/mapa/propiedad/:codigo` **público** con POIs cercanos y **rutas por calles** (ORS→OSRM→recta, sin API key). Ver D22/D23.*
 
 ### Post-MVP construido (rama `feat/e11-intencion`, pendiente merge a `master`)
-- [x] **E11 — Clasificación de Intención de Compra** → [[E11 - Clasificación de Intención de Compra (Comprador vs Curioso)]] — *construida y **auditada** 2026-07-27 (D26, commit `ba66bb7`). Distingue **compradores** reales de **curiosos ("lolos")** que solo preguntan precio y mide el **% por zona/propiedad**: señal `perfil.intencion` inferida por Aqua + `derivar_intencion` de fallback + backfill + evento `intencion_clasificada` + `GET /metrics/intencion` + tool de insights + tile. **261/261 tests verdes**, `npm run build` OK. Pendiente: merge a `master` + fix de estado en `CLAUDE.md` (handoff-4).*
+- [x] **E11 — Clasificación de Intención de Compra** → [[E11 - Clasificación de Intención de Compra (Comprador vs Curioso)]] — *construida y **auditada** 2026-07-27 (D26, commit `ba66bb7`). Distingue **compradores** reales de **curiosos ("lolos")** que solo preguntan precio y mide el **% por zona/propiedad**: señal `perfil.intencion` inferida por Aqua + `derivar_intencion` de fallback + backfill + evento `intencion_clasificada` + `GET /metrics/intencion` + tool de insights + tile. **261/261 tests verdes**, `npm run build` OK; fix de estado en `CLAUDE.md` (handoff-4) hecho. Pendiente: **solo merge a `master`**.*
 
 ### Roadmap Fase 2 (pendiente)
 - [ ] Multitenancy + licencias.

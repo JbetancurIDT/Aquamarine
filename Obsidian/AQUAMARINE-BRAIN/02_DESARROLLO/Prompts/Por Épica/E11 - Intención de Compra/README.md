@@ -3,7 +3,7 @@
 - **Épica (detalle):** `Obsidian/AQUAMARINE-BRAIN/02_DESARROLLO/Epicas/E11 - Clasificación de Intención de Compra (Comprador vs Curioso).md`
 - **Rama:** `feat/e11-intencion` (desde `master`, que ya trae E09/E10)
 - **Decisión de origen:** [[Decisiones (Decision Log)]] **D26** (2026-07-24).
-- **Estado:** ✅ **entregada y auditada** (2026-07-27, commit `ba66bb7`) — **261/261 tests verdes**, `npm run build` OK. Pendiente: merge a `master` + `handoff-4` (fix de estado en `CLAUDE.md`).
+- **Estado:** ✅ **entregada, auditada y documentada** (2026-07-27, commit `ba66bb7`) — **261/261 tests verdes**, `npm run build` OK; `handoff-4` (fix de estado en `CLAUDE.md`) **hecho**. Pendiente: **solo merge a `master`**.
 - **Idea:** distinguir **compradores** reales de **curiosos** ("lolos") que solo preguntan precio, y medir el **% por zona/propiedad**. Eje **nuevo e independiente**: en v1 **no** toca el scoring; Aqua **infiere**, no interroga; todo se calcula **al vuelo**, sin contadores denormalizados.
 
 **Cómo usar:** abre el handoff, **⌘A ⌘C** (todo el archivo es el prompt), pégalo en la sesión del Dev. Cada handoff termina con **"PARA"**: el Dev se detiene, tú traes su resumen al Planner para una **auditoría read-only**, y recién ahí pasas al siguiente.
