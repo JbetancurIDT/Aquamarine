@@ -2,7 +2,7 @@
 tipo: nota-tecnica
 audiencia: dev
 estado: completado
-actualizado: 2026-06-10
+actualizado: 2026-07-27
 tags: [area/desarrollo, datos, stack/postgres, stack/chroma]
 ---
 
@@ -33,8 +33,9 @@ Aquí definimos qué guardamos: los clientes (leads), sus conversaciones, en qu�
 | score | int? | 0–100; **null** = aún sin calificar (handoff por solicitud antes de perfilar) |
 | temperatura | text | `caliente` \| `tibio` \| `frio` \| `desconocido` (sin calificar, D15) |
 | estado | text | ver `pipeline` abajo |
-| perfil | jsonb | {tipo, zona, presupuesto_min/max, habitaciones, plazo, notas} |
+| perfil | jsonb | {tipo, zona, ciudad, presupuesto_min/max, habitaciones, plazo, `inmueble_interes`, `movilidad` (D25 · re-ranking suave), `intencion` (D26 · comprador/explorando/curioso), `interes_urgencia` (alta/media/baja), notas} |
 | asesor_id | UUID FK null | asignado en el handoff |
+| atendido_por_humano | bool | **takeover humano apaga la IA** (D17); `orchestrator.responder` corta-circuito si está activo |
 | creado_en / actualizado_en | timestamptz | |
 
 ### `conversaciones` / `mensajes`
@@ -65,9 +66,11 @@ Valores de `leads.estado`:
 |---|---|---|
 | id | UUID PK | |
 | lead_id | UUID FK | |
-| tipo | text | `lead_creado`, `score_actualizado`, `handoff`, `cita_agendada`, etc. |
+| tipo | text | `lead_creado`, `score_actualizado`, `handoff`, `cita_agendada`, `intencion_clasificada` (D26), etc. |
 | payload | jsonb | |
 | creado_en | timestamptz | base para tiempos y conversión |
+
+> **`intencion_clasificada`** (D26 · E11): se emite cuando la **intención de compra** del lead cambia; `payload = {intencion, zona, ciudad, inmueble_interes}` para reconstruir el histórico y re-segmentar por zona/propiedad. La intención vive en `perfil.intencion` (Postgres, escritor único `lead_service.registrar_intencion`); el **% comprador vs curioso** se calcula **al vuelo** (`GET /metrics/intencion`), sin contadores denormalizados. `Evento` no lleva `tenant_id` propio: queda scoped vía `lead_id → lead.tenant_id` (patrón de todos los eventos).
 
 ## Chroma — esquema del inventario (inmuebles)
 Cada inmueble = 1 documento con su texto + metadata filtrable. Chroma corre como **servidor en Docker**
@@ -121,5 +124,6 @@ Implementado y verificado en E01 — detalle del feature en `Aquamarine Project/
 - Conversión **lead → cita** y **cita → negociación**.
 - Leads en cada estado del **pipeline**.
 - Inmuebles más consultados (mapa de calor de demanda).
+- **% de intención de compra** (comprador vs curioso / "lolo") global y por **zona** / **propiedad** (D26 · E11; `GET /metrics/intencion`, al vuelo).
 
 > Casi todas salen de `eventos` + `leads`. Diseñar `eventos` bien = dashboard fácil.

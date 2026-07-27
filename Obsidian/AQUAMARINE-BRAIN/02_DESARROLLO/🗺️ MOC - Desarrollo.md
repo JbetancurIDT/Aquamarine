@@ -2,7 +2,7 @@
 tipo: moc
 audiencia: dev
 estado: en-progreso
-actualizado: 2026-07-24
+actualizado: 2026-07-27
 tags: [moc, area/desarrollo]
 ---
 
@@ -16,6 +16,7 @@ tags: [moc, area/desarrollo]
 - [[Modelo de Datos]] — tablas de Postgres + esquema de inmuebles
 - [[Setup del Entorno]] — cómo arrancar el proyecto
 - [[Diseño UI (referencia)]] — paleta (obligatoria) + catálogo de pantallas del frontend
+- [[🗺️ MOC - Prompts (Handoffs)]] — todos los handoffs Planner→Dev, por épica y por módulo
 
 ## Épicas (en orden sugerido de ataque)
 
@@ -32,9 +33,9 @@ tags: [moc, area/desarrollo]
 | E08 | [[E08 - Agente de Métricas (Gerencia)]] | Agente para Claudia: métricas en lenguaje natural | ✅ `completado` (/performance + burbuja "Asistente" en /dashboard con Haiku + tool-use real) |
 | E09 | [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] | Cercanía: "cerca del metro / de un D1 / de la Clínica X" | ✅ `completado` (post-MVP · cercanía DURA + nombre propio + lugares tolerantes + movilidad) |
 | E10 | [[E10 - Mapa de Inmuebles]] | Mapa del inventario + heatmap de demanda + mapa por propiedad con rutas | ✅ `completado` (post-MVP · Leaflet/OSM, rutas ORS→OSRM→recta) |
-| E11 | [[E11 - Clasificación de Intención de Compra (Comprador vs Curioso)]] | Comprador vs curioso ("lolo") por zona/propiedad — % de intención real de compra | 📋 `pendiente` (post-MVP · planeada 2026-07-24, D26) |
+| E11 | [[E11 - Clasificación de Intención de Compra (Comprador vs Curioso)]] | Comprador vs curioso ("lolo") por zona/propiedad — % de intención real de compra | ✅ `completado` (post-MVP · rama `feat/e11-intencion`, auditada · 261 tests, D26) |
 
-> **E09 y E10** son las épicas **post-MVP** (no estaban en el camino crítico de los 2 días): E09 (búsqueda por proximidad, planeada 2026-07-22) y E10 (mapa de inmuebles). Ambas **entregadas y mergeadas a `master`** el 2026-07-23/24. **E11** (clasificación de intención de compra: comprador vs curioso/"lolo") queda **planeada** el 2026-07-24 (D26), pendiente de construir.
+> **E09 y E10** son las épicas **post-MVP** (no estaban en el camino crítico de los 2 días): E09 (búsqueda por proximidad, planeada 2026-07-22) y E10 (mapa de inmuebles). Ambas **entregadas y mergeadas a `master`** el 2026-07-23/24. **E11** (clasificación de intención de compra: comprador vs curioso/"lolo") fue **construida y auditada** el 2026-07-27 (D26 · 261 tests verdes) en rama `feat/e11-intencion`, **pendiente de merge a `master`**.
 
 ## Camino crítico (2 días)
 ```

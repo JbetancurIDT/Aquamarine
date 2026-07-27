@@ -2,7 +2,7 @@
 tipo: log
 audiencia: ambos
 estado: en-progreso
-actualizado: 2026-07-24
+actualizado: 2026-07-27
 tags: [area/proyecto, log, progreso]
 ---
 
@@ -75,6 +75,11 @@ tags: [area/proyecto, log, progreso]
 - [review] Workflows adversariales sobre H7/H8/mapa/chat-cards con hallazgos aplicados. **Merge de `feat/e09-geo` → `master`** (todo integrado). **Pendiente:** verificación visual (eyeball) del mapa y la ruta animada por el usuario.
 - [docs] Cerebro al día: **D22–D25**, **R11–R14**, épicas **[[E09 - Búsqueda por Proximidad Geográfica (Geo)]]** (completada, + S10/S11/S12) y **[[E10 - Mapa de Inmuebles]]** (nueva), [[Estado del MVP (Checklist global)]] y [[🗺️ MOC - Desarrollo]] actualizados.
 - [planeación] **E11 planeada — Clasificación de Intención de Compra (comprador vs curioso / "lolo").** Investigación read-only con 3 agentes en paralelo (modelo de lead/intención · métricas/segmentación por zona · cerebro). Hallazgos: la intención hoy es implícita (temperatura + `plazo`/`presupuesto`/`inmueble_interes`); `interes_urgencia` se extrae pero se descarta; la segmentación por zona ya existe (`demanda.leads_por_ubicacion` + `_cumple_ubicacion`). Diseño aprobado por el dueño: señal `perfil.intencion` inferida por Aqua + `derivar_intencion` de fallback + backfill; evento `intencion_clasificada`; métrica `GET /metrics/intencion` por zona y propiedad; tool de insights + tile. Sin re-ponderar la temperatura en v1; sin contadores. Registrado como **D26** y épica **[[E11 - Clasificación de Intención de Compra (Comprador vs Curioso)]]** (pendiente). Handoff listo para el Dev.
+
+## 2026-07-27 — E11 construida + auditada · prompts al cerebro
+- [E11] **Implementada (commit `ba66bb7`, rama `feat/e11-intencion`).** Motor: `perfil.intencion` inferido por Aqua cada turno + `interes_urgencia` rescatado (antes se descartaba), `derivar_intencion` (fallback determinista), `backfill_intencion.py` idempotente, evento `intencion_clasificada` (emite **solo al cambiar**; escritor único `lead_service.registrar_intencion`). Métrica: `GET /metrics/intencion` (% comprador/explorando/curioso por **zona** y **propiedad**, al vuelo) + tool de insights `intencion_por_zona` + tile en el dashboard. `scoring.py` intacto — eje independiente (D26).
+- [review] **Auditoría read-only** (workflow multi-agente + verificación adversarial, 14 agentes). Veredicto: **completo y correcto**, 0 blockers/majors; **261/261 tests verdes** (32 nuevos + 229 previos), `npm run build` OK. Único fix real: estado obsoleto de la fila E11 en `CLAUDE.md` → `handoff-4` para el Dev. Reconciliadas 2 contradicciones del texto de la épica (T11.1.1 `_CAMPOS_PERFIL` y principio 2 vs T11.4.1): el código se aparta del literal y hace bien; anotado en [[E11 - Clasificación de Intención de Compra (Comprador vs Curioso)]].
+- [cerebro/estructura] **Prompts al cerebro (D27).** `/prompts` (raíz del repo) → `02_DESARROLLO/Prompts/`, organizados **Por Épica** (E09/E10/E11) y **Por Módulo** (Agente: Movilidad, Fixes). Nuevo índice [[🗺️ MOC - Prompts (Handoffs)]]; [[Arquitectura]] documenta la estructura. `Modelo de Datos.md` al día (`perfil.intencion`/`interes_urgencia`, evento `intencion_clasificada`, + gaps `atendido_por_humano`/`movilidad`). E11 → `completado` en checklist, MOC y frontmatter.
 
 ---
 > **Cómo usar:** al cerrar una tarea, agrega una línea aquí y marca el checkbox en su épica. Sube `actualizado` en el frontmatter.

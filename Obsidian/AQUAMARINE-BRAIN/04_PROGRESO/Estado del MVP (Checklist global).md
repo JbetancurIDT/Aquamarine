@@ -2,7 +2,7 @@
 tipo: log
 audiencia: ambos
 estado: en-progreso
-actualizado: 2026-07-24
+actualizado: 2026-07-27
 tags: [area/proyecto, progreso, checklist]
 ---
 
@@ -25,8 +25,8 @@ tags: [area/proyecto, progreso, checklist]
 - [x] **E09 — Búsqueda por Proximidad Geográfica** → [[E09 - Búsqueda por Proximidad Geográfica (Geo)]] — *entregada 2026-07-23/24. Aqua filtra por cercanía (haversine radial, POI OSM/Overpass + GTFS del Metro, **filtro DURO y honesto** — metro solo en el Valle de Aburrá), con **fallback por nombre propio** ("cerca de EAFIT"), lugares tolerantes (coloquial→oficial) y **preferencia de movilidad** (re-ranking suave). Ver [[Decisiones (Decision Log)]] D21/D24/D25.*
 - [x] **E10 — Mapa de Inmuebles** → [[E10 - Mapa de Inmuebles]] — *entregada 2026-07-23/24. `/mapa` (Leaflet+OSM) con todo el inventario + **heatmap de demanda**, y `/mapa/propiedad/:codigo` **público** con POIs cercanos y **rutas por calles** (ORS→OSRM→recta, sin API key). Ver D22/D23.*
 
-### Post-MVP planeado (siguiente)
-- [ ] **E11 — Clasificación de Intención de Compra** → [[E11 - Clasificación de Intención de Compra (Comprador vs Curioso)]] — *planeada 2026-07-24 (D26). Distingue **compradores** reales de **curiosos ("lolos")** que solo preguntan precio, y mide el **% por zona/propiedad**. Señal `perfil.intencion` que infiere Aqua + derivación para leads viejos + evento de auditoría + métrica segmentada. Sin construir; handoff listo para el Dev.*
+### Post-MVP construido (rama `feat/e11-intencion`, pendiente merge a `master`)
+- [x] **E11 — Clasificación de Intención de Compra** → [[E11 - Clasificación de Intención de Compra (Comprador vs Curioso)]] — *construida y **auditada** 2026-07-27 (D26, commit `ba66bb7`). Distingue **compradores** reales de **curiosos ("lolos")** que solo preguntan precio y mide el **% por zona/propiedad**: señal `perfil.intencion` inferida por Aqua + `derivar_intencion` de fallback + backfill + evento `intencion_clasificada` + `GET /metrics/intencion` + tool de insights + tile. **261/261 tests verdes**, `npm run build` OK. Pendiente: merge a `master` + fix de estado en `CLAUDE.md` (handoff-4).*
 
 ### Roadmap Fase 2 (pendiente)
 - [ ] Multitenancy + licencias.
@@ -46,4 +46,4 @@ tags: [area/proyecto, progreso, checklist]
 agente Aqua, chat del lead, dashboard + pipeline + performance, handoff completo (auto-asignación,
 takeover humano, notificaciones escalonadas), seed realista con inmuebles reales, y la burbuja de
 métricas para gerencia. Pendiente solo de **verificación e2e en vivo** (servicios arriba) y deuda
-menor (tests de frontend, validación fina de paleta). **Post-MVP entregado y mergeado a `master`:** E09 (búsqueda por proximidad geográfica) y E10 (mapa de inmuebles). Roadmap Fase 2: multitenancy + licencias, tiempo de viaje como filtro.
+menor (tests de frontend, validación fina de paleta). **Post-MVP entregado y mergeado a `master`:** E09 (búsqueda por proximidad geográfica) y E10 (mapa de inmuebles). **E11** (intención de compra: comprador vs curioso) **construida y auditada** — 261 tests verdes — en rama `feat/e11-intencion`, pendiente de merge. Roadmap Fase 2: multitenancy + licencias, tiempo de viaje como filtro.

@@ -2,7 +2,7 @@
 tipo: nota-tecnica
 audiencia: dev
 estado: completado
-actualizado: 2026-06-09
+actualizado: 2026-07-27
 tags: [area/desarrollo, arquitectura]
 ---
 
@@ -84,3 +84,20 @@ aquamarine-mvp/
 ```
 
 Ver detalle de tablas en [[Modelo de Datos]] y librerías en [[Stack Tecnológico]].
+
+## Estructura del cerebro (vault Obsidian)
+El cerebro vive **dentro del repo** en `Obsidian/AQUAMARINE-BRAIN/` (fuente de verdad de negocio, arquitectura, épicas, decisiones y progreso). Carpetas clave:
+
+```
+Obsidian/AQUAMARINE-BRAIN/
+├── 00_INICIO/        # MOC de entrada
+├── 01_PROYECTO/      # alcance, Decisiones (Decision Log), riesgos
+├── 02_DESARROLLO/    # arquitectura, modelo de datos, stack, épicas y PROMPTS
+│   ├── Epicas/       # E00→E11 (cada tarea con su prompt)
+│   └── Prompts/      # handoffs Planner→Dev (antes en /prompts en la raíz del repo)
+│       ├── Por Épica/    # E09, E10, E11 — cada carpeta entrega una épica completa
+│       └── Por Módulo/   # tuning transversal que no es épica propia (Agente: Movilidad, Fixes)
+└── 04_PROGRESO/      # Daily Log, Estado del MVP (checklist), riesgos
+```
+
+Los **prompts/handoffs** (el guion Planner→Dev) son **parte del cerebro** ([[Decisiones (Decision Log)]] D27): se organizan por **épica** (los que entregan un feature) y por **módulo** (tuning que no llega a épica). Índice navegable: [[🗺️ MOC - Prompts (Handoffs)]]. Los edita el **Planner** (RW); el **Dev** los lee/copia (R). Los candados de rol están en [[AGENTES]].
